@@ -42,19 +42,19 @@ let jokersh = [
         name: "Verdant Shift",
         text: [
             "{C:purple}Picks{}:{C:black} a season in order whenever a blind is selected{}",
-            "{C:inactive}(Currently {C:chips}+1{C:inactive} Chips, {C:mult}+1{C:inactive} Mult)",
-            "{C:inactive}(Hover Over Card)"
+            "(Hover Over Card)",
+            "{C:inactive}(Art by {C:red,E:1,S:1.1}CADIO{}{C:inactive})"
         ],
         image_url: "img/j_blank.png",
         rarity: "Rare",
         related: "Earth Day",
-        hoverText: "{C:purple}Spring{C:black}: each played card with the club suit gives random enhancement to it.<br/> {C:purple}Summer{C:black}: +4 chips for each discarded card with the diamond suit.<br/> {C:purple}Autumn{C:black}: +3 Mult for each played card with the heart suit.<br/> {C:purple}Winter{C:black}: each discarded card with the spade suit gives random enhancement to it.",
+        hoverText: "{C:inactive}(Currently {C:chips}+1{C:inactive} Chips, {C:mult}+1{C:inactive} Mult)<br/>{C:purple}Spring{C:black}: each played card with the club suit gives random enhancement to it.<br/> {C:purple}Summer{C:black}: +3 Mult for each played card with the heart suit.<br/> {C:purple}Autumn{C:black}: +4 chips for each discarded card with the diamond suit.<br/> {C:purple}Winter{C:black}: each discarded card with the spade suit gives random enhancement to it.",
     },
     {
         name: "Fool's Fortune",
         text: [
             "Sell this card to create {C:attention}2{} free copies of {C:tarot}The Fool{}",
-            "{C:inactive}(Must have room){}"
+            "{C:inactive}(Must have room, Only works during play){}"
         ],
         image_url: "img/j_fools_fortune.png",
         rarity: "Uncommon",
@@ -88,6 +88,16 @@ let jokersh = [
         image_url: "img/j_love_is_blind.png",
         rarity: "Uncommon",
         related: "Valentine's Day"
+    },
+    {
+        name: "Turkey Dinner",
+        text: [
+            "Sell this card to {C:attention}instantly win{} current blind",
+            "{C:inactive}(Only works during play){}"
+        ],
+        image_url: "img/j_turkey_dinner.png",
+        rarity: "Rare",
+        related: "Thanksgiving"
     }
 ]
 
@@ -294,16 +304,17 @@ let rarities = {
 }
 
 let relateds = {
-    "Birthday": "#FF69B4",
+    "Birthday": "#FFD700",
     "Halloween": "#FFA500",
     "Easter": "#90EE90",
-    "Christmas": "#FFD700",
+    "Christmas": "#C8102E",
     "New Years": "#191970",
     "St.Patrick's Day": "#2E8B57",
     "Earth Day": "#228B22",
-    "April Fools' Day": "#FFD700",
+    "April Fools' Day": "#00FF00",
     "Pride Day": "#FF6CB5",
-    "Valentine's Day": "#FFB6C1"
+    "Valentine's Day": "#FFB6C1",
+    "Thanksgiving": "#DAA520"
 }
 
 regex = /{([^}]+)}/g;
