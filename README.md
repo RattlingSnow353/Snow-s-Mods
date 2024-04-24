@@ -10,7 +10,7 @@ New Jokers
     Must have room.
   
   Clover: Rerolls cost $4 less 1 in 4 chance to decrease price by $1 when blind is selected.
-    Ex: rerolls cost $5, with this card they cost $1. 1 in 4 chance to turn that into $2 then 3$ until back at $5 at which it'll be destroyed.
+    Ex: rerolls cost $5, with this card they cost $1. 1 in 4 chance to turn that into $2 then $3 until back at $5 at which it'll be destroyed.
   
   Verdant Shift: Picks a season in order whenever a blind is selected (Art done by @CADIO).
     More information on website (Art may be updated at future date).
