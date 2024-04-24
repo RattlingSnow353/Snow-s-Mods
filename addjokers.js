@@ -45,7 +45,7 @@ let jokersh = [
             "(Hover Over Card)",
             "{C:inactive}(Art by {C:red,E:1,S:1.1}CADIO{}{C:inactive})"
         ],
-        image_url: "img/j_blank.png",
+        image_url: "img/j_verdant_shift.png",
         rarity: "Rare",
         related: "Earth Day",
         hoverText: "{C:inactive}(Currently {C:chips}+1{C:inactive} Chips, {C:mult}+1{C:inactive} Mult)<br/>{C:purple}Spring{C:black}: each played card with the club suit gives random enhancement to it.<br/> {C:purple}Summer{C:black}: +3 Mult for each played card with the heart suit.<br/> {C:purple}Autumn{C:black}: +4 chips for each discarded card with the diamond suit.<br/> {C:purple}Winter{C:black}: each discarded card with the spade suit gives random enhancement to it.",
