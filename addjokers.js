@@ -49,6 +49,7 @@ let jokersh = [
         rarity: "Rare",
         related: "Earth Day",
         hoverText: "{C:inactive}(Currently {C:chips}+1{C:inactive} Chips, {C:mult}+1{C:inactive} Mult)<br/>{C:purple}Spring{C:black}: each played card with the club suit gives random enhancement to it.<br/> {C:purple}Summer{C:black}: +3 Mult for each played card with the heart suit.<br/> {C:purple}Autumn{C:black}: +4 chips for each discarded card with the diamond suit.<br/> {C:purple}Winter{C:black}: each discarded card with the spade suit gives random enhancement to it.",
+        hoverSize: "400",
     },
     {
         name: "Fool's Fortune",
@@ -99,6 +100,23 @@ let jokersh = [
         rarity: "Rare",
         related: "Thanksgiving"
     }
+]
+
+let jokersot = [
+    {
+        name: "Cool Egg",
+        text: [
+            "Gains {C:money}$4{} in {C:attention}sell value{} and {C:chips}+15{} chips every round",
+            "{C:inactive}(Currently {C:chips}+200{}{C:inactive} Chips)",
+        ],
+        image_url: "img/j_cool_egg.png",
+        rarity: "Fusion",
+        related: "Other",
+        fusion_jokers: [
+            "img/j_egg.png",
+            "img/j_stuntman.png"
+        ],
+    },
 ]
 
 // works the same. 
@@ -301,6 +319,7 @@ let rarities = {
     "Sticker": "#5d5dff",
     "Boss Blind": "#5d5dff",
     "Showdown": "#4584fa",
+    "Fusion": "#F7D762",
 }
 
 let relateds = {
@@ -314,7 +333,8 @@ let relateds = {
     "April Fools' Day": "#00FF00",
     "Pride Day": "#FF6CB5",
     "Valentine's Day": "#FFB6C1",
-    "Thanksgiving": "#DAA520"
+    "Thanksgiving": "#DAA520",
+    "Other": "#9bb6bd",
 }
 
 regex = /{([^}]+)}/g;
@@ -377,11 +397,10 @@ let add_cards_to_div = (jokersh, jokersh_div, showHoverText = false) => {
       `;
         }
 
-        // Inside the add_cards_to_div function
         if (showHoverText && joker.hoverText) {
             let hoverTextDiv = document.createElement("div");
             hoverTextDiv.classList.add("hover-text");
-            // Split hover text by comma and add span with color styling to each part
+
             let hoverTextParts = joker.hoverText.split(',');
             hoverTextParts.forEach(part => {
                 let span = document.createElement('span');
@@ -403,9 +422,48 @@ let add_cards_to_div = (jokersh, jokersh_div, showHoverText = false) => {
                 });
                 hoverTextDiv.appendChild(span);
             });
+
             joker_div.appendChild(hoverTextDiv);
-            // Set the ID for the joker element if hover text is added
             joker_div.id = joker.name.toLowerCase().replace(/\s/g, "-");
+
+            // Set initial styles for hover text
+            hoverTextDiv.style.opacity = '0';
+            hoverTextDiv.style.maxHeight = '0';
+            hoverTextDiv.style.overflow = 'hidden';
+
+            // Calculate transition duration based on the height of hover text
+            let transitionDuration = Math.max(0.3, hoverTextDiv.scrollHeight / 50 * 0.3); // Adjust the factor as needed
+            hoverTextDiv.style.transition = `opacity ${transitionDuration}s ease, max-height ${transitionDuration}s ease`;
+
+            // Smoothly transition hover text appearance
+            joker_div.addEventListener('mouseenter', function () {
+                hoverTextDiv.style.opacity = '1';
+                hoverTextDiv.style.maxHeight = `${joker.hoverSize}px`; // Adjust the height based on joker.hoverSize
+            });
+
+            // Smoothly transition hover text disappearance
+            joker_div.addEventListener('mouseleave', function () {
+                hoverTextDiv.style.opacity = '0';
+                hoverTextDiv.style.maxHeight = '0';
+            });
+        }
+
+        if (joker.fusion_jokers) {
+          let fusion_div = document.createElement("div");
+          fusion_div.innerHTML = `
+          <table>
+            <tr>
+            <td><img src="${joker.fusion_jokers[0]}" alt="${joker.name}" style="width: 100%; height: 100%"/></td>
+            <td><h1 style="padding-right: 20px; padding-left: 20px">+</h1></td>
+            <td><img src="${joker.fusion_jokers[1]}" alt="${joker.name}" style="width: 100%; height: 100%"/></td>
+            </tr>
+          </table>
+          `
+          joker_div.innerHTML += `
+          <button type="button" class="collapsible">Show Fusion</button>`
+
+          fusion_div.classList.add("content");
+          joker_div.appendChild(fusion_div);
         }
 
         jokersh_div.appendChild(joker_div);
@@ -455,9 +513,26 @@ if (blindsh.length === 0) {
     add_cards_to_div(blindsh, blinds_div);
 }
 
-if (jokers.length === 0) {
-    document.querySelector(".jokersfull").style.display = "none"
+if (jokersot.length === 0) {
+    document.querySelector(".jokersotfull").style.display = "none"
 } else {
-    let jokers_div = document.querySelector(".jokers-another-theme");
-    add_cards_to_div(jokers, jokers_div);
+    let jokersot_div = document.querySelector(".jokers-other");
+    add_cards_to_div(jokersot, jokersot_div);
+}
+
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight) {
+            this.innerHTML = "Show Fusion"
+            content.style.maxHeight = null;
+        } else {
+            this.innerHTML = "Hide Fusion"
+            content.style.maxHeight = content.scrollHeight + "px";
+        }
+    });
 }
