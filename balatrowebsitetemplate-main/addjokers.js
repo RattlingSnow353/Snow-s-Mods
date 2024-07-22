@@ -42,19 +42,20 @@ let jokersh = [
         name: "Verdant Shift",
         text: [
             "{C:purple}Picks{}:{C:black} a season in order whenever a blind is selected{}",
-            "{C:inactive}(Currently {C:chips}+1{C:inactive} Chips, {C:mult}+1{C:inactive} Mult)",
-            "{C:inactive}(Hover Over Card)"
+            "(Hover Over Card)",
+            "{C:inactive}(Art by {C:red,E:1,S:1.1}CADIO{}{C:inactive})"
         ],
-        image_url: "img/j_blank.png",
+        image_url: "img/j_verdant_shift.png",
         rarity: "Rare",
         related: "Earth Day",
-        hoverText: "{C:purple}Spring{C:black}: each played card with the club suit gives random enhancement to it.<br/> {C:purple}Summer{C:black}: +4 chips for each discarded card with the diamond suit.<br/> {C:purple}Autumn{C:black}: +3 Mult for each played card with the heart suit.<br/> {C:purple}Winter{C:black}: each discarded card with the spade suit gives random enhancement to it.",
+        hoverText: "{C:inactive}(Currently {C:chips}+1{C:inactive} Chips, {C:mult}+1{C:inactive} Mult)<br/>{C:purple}Spring{C:black}: each played card with the club suit gives random enhancement to it.<br/> {C:purple}Summer{C:black}: +3 Mult for each played card with the heart suit.<br/> {C:purple}Autumn{C:black}: +4 chips for each discarded card with the diamond suit.<br/> {C:purple}Winter{C:black}: each discarded card with the spade suit gives random enhancement to it.",
+        hoverSize: "400",
     },
     {
         name: "Fool's Fortune",
         text: [
             "Sell this card to create {C:attention}2{} free copies of {C:tarot}The Fool{}",
-            "{C:inactive}(Must have room){}"
+            "{C:inactive}(Must have room, Only works during play){}"
         ],
         image_url: "img/j_fools_fortune.png",
         rarity: "Uncommon",
@@ -73,8 +74,8 @@ let jokersh = [
     {
         name: "Black Swan",
         text: [
-            "Playing a {C:attention}Pair{} of face cards gives {C:mult}+10{} Mult",
-            "{C:inactive}(Currently {C:mult}+10{}{C:inactive} Mult)"
+            "Playing a {C:attention}Pair{} of face cards gives {C:mult}+3{} Mult",
+            "{C:inactive}(Currently {C:mult}+5{}{C:inactive} Mult)"
         ],
         image_url: "img/j_black_swan.png",
         rarity: "Uncommon",
@@ -83,67 +84,169 @@ let jokersh = [
     {
         name: "Love Is Blind",
         text: [
-            "{C:mult}X3{} Mult, all non-hearts cards inhand become face down for the round"
+            "{C:mult}X3{} Mult, all hearts cards in hand become {C:mult}debuffed{}"
         ],
         image_url: "img/j_love_is_blind.png",
         rarity: "Uncommon",
         related: "Valentine's Day"
+    },
+    {
+        name: "Turkey Dinner",
+        text: [
+            "Sell this card to {C:attention}instantly win{} current blind",
+            "{C:inactive}(Only works during play){}"
+        ],
+        image_url: "img/j_turkey_dinner.png",
+        rarity: "Rare",
+        related: "Thanksgiving"
     }
 ]
 
-// works the same. 
-let consumablesh = [
-    // {
-    //   name: "Joker",
-    //   text: [
-    //     "{C:mult}+4{} Mult"
-    //   ],
-    //   image_url: "img/j_joker.png",
-    //   rarity: "Tarot"
-    // },
-    // {
-    //   name: "Joker",
-    //   text: [
-    //     "{C:mult}+4{} Mult"
-    //   ],
-    //   image_url: "img/j_joker.png",
-    //   rarity: "Planet"
-    // },
-    // {
-    //   name: "Joker",
-    //   text: [
-    //     "{C:mult}+4{} Mult"
-    //   ],
-    //   image_url: "img/j_joker.png",
-    //   rarity: "Spectral"
-    // },
+let jokersot = [
+    {
+        name: "Cool Egg",
+        text: [
+            //"Gains {C:money}$4{} in {C:attention}sell value{} and {C:chips}+15{} chips every round",
+            //"{C:inactive}(Currently {C:chips}+200{}{C:inactive} Chips)",
+            "{C:attention}Temporary removed"
+        ],
+        image_url: "img/j_cool_egg.png",
+        rarity: "Fusion",
+        related: "Other",
+        //fusion_jokers: [
+        //    "img/j_egg.png",
+        //    "img/j_stuntman.png"
+        //],
+    },
+    {
+        name: "Chick",
+        text: [
+            "Gains {C:money}$3{} in {C:attention}sell value{}",
+            "every round. Lays an",
+            "egg when {C:attention}sold{}.",
+        ],
+        image_url: "img/j_chick.png",
+        rarity: "Evolved",
+        related: "Other",
+        evolved_jokers: [
+            "img/j_egg_des.png",
+            "img/j_egg.png"
+        ],
+    },
 ]
 
-let card_modificationsh = [
-    // {
-    //   name: "Joker",
-    //   text: [
-    //     "{C:mult}+4{} Mult"
-    //   ],
-    //   image_url: "img/j_joker.png",
-    //   rarity: "Enhancement"
-    // },
-    // {
-    //   name: "Joker",
-    //   text: [
-    //     "{C:mult}+4{} Mult"
-    //   ],
-    //   image_url: "img/j_joker.png",
-    //   rarity: "Edition"
-    // },
-    // {
-    //   name: "Joker",
-    //   text: [
-    //     "{C:mult}+4{} Mult"
-    //   ],
-    //   image_url: "img/sticker_example.png",
-    //   rarity: "Seal"
-    // },
+let jokersdi = [
+    {
+        name: "Opps! All Glorbs!",
+        text: [
+            "All Probabilities {C:attention}Randomized{}",
+            "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}(0-3)/3{}{C:inactive})",
+        ],
+        image_url: "img/j_opps_all_glorbsDice.png",
+        rarity: "Common",
+        related: "Dice",
+    },
+    {
+        name: "What? No Numbers?",
+        text: [
+            "All Probabilities Become {C:mult}0{}",
+            "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}0/3{}{C:inactive})",
+        ],
+        image_url: "img/j_what_no_numbersDice.png",
+        rarity: "Uncommon",
+        related: "Dice",
+    },
+    {
+        name: "Sicherman",
+        text: [
+            "All Probabilities {C:green}double{} or {C:mult}half{} each {C:attention}round{}.",
+            "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}(0.5/2)/3{}{C:inactive})",
+        ],
+        image_url: "img/j_sichermanDice.png",
+        rarity: "Uncommon",
+        related: "Dice",
+    },
+    {
+        name: "AAAH?! It's Infinity!?",
+        text: [
+            "All Probabilities become {C:green}certain{}",
+            "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}999999999999/3{}{C:inactive})",
+        ],
+        image_url: "img/j_infinityDice.png",
+        rarity: "Rare",
+        related: "Dice",
+    },
+    {
+        name: "Fudge Dice",
+        text: [
+            "All Probabilties are {C:green}increased{} or {C:mult}decreased{} by 1 randomly each {C:attention}round{}.",
+            "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}(+1/-1)/3{}{C:inactive})",
+        ],
+        image_url: "img/j_fudgeDice.png",
+        rarity: "Common",
+        related: "Dice",
+    },
+    {
+        name: "Flux Dice",
+        text: [
+            "All Probabilties are {C:mult}multiplied{} by {C:green}X1{}. Gains {C:green}X0.03{} every time a {C:attention}lucky card{} is scored.",
+        ],
+        image_url: "img/j_fluxDice.png",
+        rarity: "Uncommon",
+        related: "Dice",
+    },
+    {
+        name: "Oops! All Oops!",
+        text: [
+            "Spawns a {C:attention}random{} dice, {C:mult}destroys{} itself.",
+        ],
+        image_url: "img/j_oops_all_oopsDice.png",
+        rarity: "Rare",
+        related: "Dice",
+    },
+    {
+        name: "Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 2{} chance to gain {C:mult}2{} mult when hand played {C:inactive}(Currently {C:mult}+0{C:inactive} Mult)",
+        ],
+        image_url: "img/j_coin.png",
+        rarity: "Common",
+        related: "Coin",
+    },
+    {
+        name: "Ghost Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 10{} chance to give {C:mult}X10{} mult",
+        ],
+        image_url: "img/j_ghost_coin.png",
+        rarity: "Rare",
+        related: "Coin",
+    },
+]
+
+let consumablesdi = [
+    {
+        name: "Fuel Cell",
+        text: [
+            "Enhances {C:attention}1{} selected card into a {C:attention}Platinum card{}.",
+        ],
+        image_url: "img/c_fuel_cell.png",
+        rarity: "Tarot",
+        related: "Other",
+    },
+]
+
+let cardmodsdi = [
+    {
+        name: "Platinum Card",
+        text: [
+            "{C:green,E:1,S:1.1}1 in 6{} chance to {C:attention}Retrigger{}",
+            "{C:green,E:1,S:1.1}1 in 18{} chance for {C:green}+0.2{} Probability",
+        ],
+        image_url: "img/m_platinum_card.png",
+        rarity: "Enhancement",
+        related: "Other",
+    },
 ]
 
 let decksh = [
@@ -291,19 +394,25 @@ let rarities = {
     "Sticker": "#5d5dff",
     "Boss Blind": "#5d5dff",
     "Showdown": "#4584fa",
+    "Fusion": "#F7D762",
+    "Evolved": "#8867a5",
 }
 
 let relateds = {
-    "Birthday": "#FF69B4",
+    "Birthday": "#FFD700",
     "Halloween": "#FFA500",
     "Easter": "#90EE90",
-    "Christmas": "#FFD700",
+    "Christmas": "#C8102E",
     "New Years": "#191970",
     "St.Patrick's Day": "#2E8B57",
     "Earth Day": "#228B22",
-    "April Fools' Day": "#FFD700",
+    "April Fools' Day": "#00FF00",
     "Pride Day": "#FF6CB5",
-    "Valentine's Day": "#FFB6C1"
+    "Valentine's Day": "#FFB6C1",
+    "Thanksgiving": "#DAA520",
+    "Dice": "#5e469c",
+    "Coin": "#e5b637",
+    "Other": "#9bb6bd",
 }
 
 regex = /{([^}]+)}/g;
@@ -366,11 +475,10 @@ let add_cards_to_div = (jokersh, jokersh_div, showHoverText = false) => {
       `;
         }
 
-        // Inside the add_cards_to_div function
         if (showHoverText && joker.hoverText) {
             let hoverTextDiv = document.createElement("div");
             hoverTextDiv.classList.add("hover-text");
-            // Split hover text by comma and add span with color styling to each part
+
             let hoverTextParts = joker.hoverText.split(',');
             hoverTextParts.forEach(part => {
                 let span = document.createElement('span');
@@ -392,9 +500,65 @@ let add_cards_to_div = (jokersh, jokersh_div, showHoverText = false) => {
                 });
                 hoverTextDiv.appendChild(span);
             });
+
             joker_div.appendChild(hoverTextDiv);
-            // Set the ID for the joker element if hover text is added
             joker_div.id = joker.name.toLowerCase().replace(/\s/g, "-");
+
+            // Set initial styles for hover text
+            hoverTextDiv.style.opacity = '0';
+            hoverTextDiv.style.maxHeight = '0';
+            hoverTextDiv.style.overflow = 'hidden';
+
+            // Calculate transition duration based on the height of hover text
+            let transitionDuration = Math.max(0.3, hoverTextDiv.scrollHeight / 50 * 0.3); // Adjust the factor as needed
+            hoverTextDiv.style.transition = `opacity ${transitionDuration}s ease, max-height ${transitionDuration}s ease`;
+
+            // Smoothly transition hover text appearance
+            joker_div.addEventListener('mouseenter', function () {
+                hoverTextDiv.style.opacity = '1';
+                hoverTextDiv.style.maxHeight = `${joker.hoverSize}px`; // Adjust the height based on joker.hoverSize
+            });
+
+            // Smoothly transition hover text disappearance
+            joker_div.addEventListener('mouseleave', function () {
+                hoverTextDiv.style.opacity = '0';
+                hoverTextDiv.style.maxHeight = '0';
+            });
+        }
+
+        if (joker.fusion_jokers) {
+          let fusion_div = document.createElement("div");
+          fusion_div.innerHTML = `
+          <table>
+            <tr>
+            <td><img src="${joker.fusion_jokers[0]}" alt="${joker.name}" style="width: 100%; height: 100%"/></td>
+            <td><h1 style="padding-right: 20px; padding-left: 20px">+</h1></td>
+            <td><img src="${joker.fusion_jokers[1]}" alt="${joker.name}" style="width: 100%; height: 100%"/></td>
+            </tr>
+          </table>
+          `
+          joker_div.innerHTML += `
+          <button type="button" class="collapsible">Show Fusion</button>`
+
+          fusion_div.classList.add("content");
+          joker_div.appendChild(fusion_div);
+        }
+
+        if (joker.evolved_jokers) {
+            let evolve_div = document.createElement("div");
+            evolve_div.innerHTML = `
+          <table>
+            <tr>
+            <td><img src="${joker.evolved_jokers[0]}" alt="${joker.name}" style="width: 100%; height: 100%"/></td>
+            <td><img src="${joker.evolved_jokers[1]}" alt="${joker.name}" style="width: 100%; height: 100%"/></td>
+            </tr>
+          </table>
+          `
+            joker_div.innerHTML += `
+          <button type="button" class="collapsible">Show Evolution</button>`
+
+            evolve_div.classList.add("content");
+            joker_div.appendChild(evolve_div);
         }
 
         jokersh_div.appendChild(joker_div);
@@ -409,19 +573,19 @@ if (jokersh.length === 0) {
     add_cards_to_div(jokersh, jokersh_div, true);
 }
 
-if (consumablesh.length === 0) {
-    document.querySelector(".consumablesfull").style.display = "none";
-} else {
-    let consumables_div = document.querySelector(".consumables-holiday");
-    add_cards_to_div(consumablesh, consumables_div);
-}
-
-if (card_modificationsh.length === 0) {
-    document.querySelector(".cardmodsfull").style.display = "none";
-} else {
-    let cardmods_div = document.querySelector(".cardmods-holiday");
-    add_cards_to_div(card_modificationsh, cardmods_div);
-}
+//if (consumablesh.length === 0) {
+//    document.querySelector(".consumablesfull").style.display = "none";
+//} else {
+//    let consumables_div = document.querySelector(".consumables-holiday");
+//    add_cards_to_div(consumablesh, consumables_div);
+//}
+//
+//if (card_modificationsh.length === 0) {
+//    document.querySelector(".cardmodsfull").style.display = "none";
+//} else {
+//    let cardmods_div = document.querySelector(".cardmods-holiday");
+//    add_cards_to_div(card_modificationsh, cardmods_div);
+//}
 
 if (decksh.length === 0) {
     document.querySelector(".decksfull").style.display = "none";
@@ -430,23 +594,66 @@ if (decksh.length === 0) {
     add_cards_to_div(decksh, decks_div);
 }
 
-if (stickersh.length === 0) {
-    document.querySelector(".stickersfull").style.display = "none";
+//if (stickersh.length === 0) {
+//    document.querySelector(".stickersfull").style.display = "none";
+//} else {
+//    let stickers_div = document.querySelector(".stickers-holiday");
+//    add_cards_to_div(stickersh, stickers_div);
+//}
+//
+//if (blindsh.length === 0) {
+//    document.querySelector(".blindsfull").style.display = "none";
+//} else {
+//    let blinds_div = document.querySelector(".blinds-holiday");
+//    add_cards_to_div(blindsh, blinds_div);
+//}
+
+if (jokersdi.length === 0) {
+    document.querySelector(".jokersdifull").style.display = "none"
 } else {
-    let stickers_div = document.querySelector(".stickers-holiday");
-    add_cards_to_div(stickersh, stickers_div);
+    let jokersdi_div = document.querySelector(".jokers-diced");
+    add_cards_to_div(jokersdi, jokersdi_div, true);
 }
 
-if (blindsh.length === 0) {
-    document.querySelector(".blindsfull").style.display = "none";
+if (consumablesdi.length === 0) {
+    document.querySelector(".consumablesdifull").style.display = "none";
 } else {
-    let blinds_div = document.querySelector(".blinds-holiday");
-    add_cards_to_div(blindsh, blinds_div);
+    let consumablesdi_div = document.querySelector(".consumables-diced");
+    add_cards_to_div(consumablesdi, consumablesdi_div);
 }
 
-if (jokers.length === 0) {
-    document.querySelector(".jokersfull").style.display = "none"
+if (cardmodsdi.length === 0) {
+    document.querySelector(".cardmodsdifull").style.display = "none";
 } else {
-    let jokers_div = document.querySelector(".jokers-another-theme");
-    add_cards_to_div(jokers, jokers_div);
+    let cardmodsdi_div = document.querySelector(".cardmods-diced");
+    add_cards_to_div(cardmodsdi, cardmodsdi_div);
+}
+
+if (jokersot.length === 0) {
+    document.querySelector(".jokersotfull").style.display = "none"
+} else {
+    let jokersot_div = document.querySelector(".jokers-other");
+    add_cards_to_div(jokersot, jokersot_div, true);
+}
+
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+    var button = coll[i];
+    var originalText = button.innerHTML;
+    originalText = originalText.replace(/^(Show |Hide )/, '');
+
+    button.setAttribute('data-original-text', originalText);
+    coll[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight) {
+            this.innerHTML = "Show " + this.getAttribute('data-original-text');
+            content.style.maxHeight = null;
+        } else {
+            this.innerHTML = "Hide " + this.getAttribute('data-original-text');
+            content.style.maxHeight = content.scrollHeight + "px";
+        }
+    });
 }

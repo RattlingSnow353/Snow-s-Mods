@@ -1,18 +1,9 @@
-/* Initially hide the hover text */
 .hover-text {
-    display: none;
+    opacity: 0;
+    max-height: 0px; 
+    overflow: hidden;
+    transition: opacity 0.4s ease, max-height 1s ease;
 }
-
-/* Show the hover text when hovering over the Verdant Shift joker */
-#verdant-shift:hover .hover-text {
-    display: block;
-}
-
-.hover-text span {
-    color: inherit; /* Inherit color from parent */
-}
-
-/* import m6x11plus.ttf */
 
 @font-face {
     font-family: 'm6x11plus';
@@ -43,7 +34,7 @@ main {
     text-align: center;
     color: white;
     padding: 1rem;
-    width: min(60rem, 100%);
+    width: min(90rem, 100%);
     margin: 1rem auto;
     font-size: 1.5rem;
 }
@@ -118,7 +109,7 @@ img.hasback {
     width: 142px;
     border-radius: 8px;
     padding: 8px;
-    background-size: 142px 190px; /* Adjust the size of the background image as needed */
+    background-size: 142px 190px; 
 }
 
 .soulholder {
@@ -158,4 +149,22 @@ img.hasback {
     object-position: top;
     top: 0;
     left: 0;
+}
+
+.collapsible {
+    background-color: #374244;
+    color: white;
+    padding: 1rem;
+    border: 2px solid white;
+    border-radius: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: larger;
+}
+
+.content {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
 }
