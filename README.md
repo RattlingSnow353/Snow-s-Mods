@@ -1,9 +1,10 @@
 # Snow-s-Mods
-Adds 20 Jokers, 1 Deck, 1 Tarot card, and 1 Enhancement.
+Adds 27 Jokers, 1 Deck, 1 Tarot card, and 1 Enhancement.
 
 Jokers:
 
 ![Screenshot 2024-07-22 180428](https://github.com/user-attachments/assets/5e1a1dcd-bdfd-41cb-beaa-2d6c14a0c6cf)
+![Screenshot 2024-07-24 101830](https://github.com/user-attachments/assets/272ef907-d1df-4cee-9256-aaac8989da32)
 
 Deck:
 
