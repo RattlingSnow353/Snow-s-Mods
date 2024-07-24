@@ -207,10 +207,47 @@ let jokersdi = [
     {
         name: "Coin",
         text: [
-            "Has a {C:green,E:1,S:1.1}1 in 2{} chance to gain {C:mult}2{} mult when hand played {C:inactive}(Currently {C:mult}+0{C:inactive} Mult)",
+            "Has a {C:green,E:1,S:1.1}1 in 2{} chance to gain {C:mult}2{} mult when hand played {C:inactive}",
+            "(Currently {C:mult}+0{C:inactive} Mult)",
         ],
         image_url: "img/j_coin.png",
         rarity: "Common",
+        related: "Coin",
+    },
+    {
+        name: "Heart Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 2{} chance to give {C:mult}X4{} mult, If only {C:mult}Hearts{} are played",
+        ],
+        image_url: "img/j_heart_coin.png",
+        rarity: "Rare",
+        related: "Coin",
+    },
+    {
+        name: "Club Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 2{} chance to give {C:mult}+50{} mult, If only {C:green}Clubs{} are played",
+        ],
+        image_url: "img/j_club_coin.png",
+        rarity: "Rare",
+        related: "Coin",
+    },
+    {
+        name: "Spade Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 2{} chance to give {C:blue}+150{} chips, If only Spades are played",
+        ],
+        image_url: "img/j_spade_coin.png",
+        rarity: "Rare",
+        related: "Coin",
+    },
+    {
+        name: "Diamond Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 2{} chance to give {C:attention}$7{}, If only {C:attention}Diamonds{} are played",
+        ],
+        image_url: "img/j_diamond_coin.png",
+        rarity: "Rare",
         related: "Coin",
     },
     {
@@ -219,6 +256,33 @@ let jokersdi = [
             "Has a {C:green,E:1,S:1.1}1 in 10{} chance to give {C:mult}X10{} mult",
         ],
         image_url: "img/j_ghost_coin.png",
+        rarity: "Rare",
+        related: "Coin",
+    },
+    {
+        name: "Liquid Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 20{} chance to {C:attention}retrigger{} all jokers",
+        ],
+        image_url: "img/j_liquid_coin.png",
+        rarity: "Rare",
+        related: "Coin",
+    },
+    {
+        name: "Metal Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 4{} chance to {C:attention}retrigger{} held in hand abilities",
+        ],
+        image_url: "img/j_metal_coin.png",
+        rarity: "Uncommon",
+        related: "Coin",
+    },
+    {
+        name: "Bent Coin",
+        text: [
+            "Has a {C:green,E:1,S:1.1}1 in 4{} chance to double {C:attention}money{}. Else, halve {C:attention}money{}.",
+        ],
+        image_url: "img/j_bent_coin.png",
         rarity: "Rare",
         related: "Coin",
     },
