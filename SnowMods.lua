@@ -823,168 +823,6 @@ if SMODS.Mods['joker_evolution'] then
     end
 end
 
-function remove_key_from_table(t, key_to_remove)
-    t[key_to_remove] = nil 
-end
-
-function round_to_nearest_tenth(num)
-    return math.floor(num * 10 + 0.5) / 10
-end
-
--- Subatomic Theme
---SMODS.Atlas { key = 'SubatomicAt', path = 'Subatomic.png', px = 71, py = 95 }
---
----- Consumables
---SMODS.ConsumableType { 
---    key = 'Subatomic',
---    collection_rows = { 4,4 },
---    primary_colour = G.C.CHIPS,
---    secondary_colour = HEX("60efff"),
---    loc_txt = {
---        collection = 'Subatomic Cards',
---        name = 'Subatomic',
---        label = 'Subatomic',
---        undiscovered = {
---			name = "Not Discovered",
---			text = {
---				"Purchase or use",
---                "this card in an",
---                "unseeded run to",
---                "learn what it does"
---			},
---		},
---    },
---}
---
---SMODS.UndiscoveredSprite {
---	key = "Subatomic",
---	atlas = "SubatomicAt",
---	pos = {
---		x = 5,
---		y = 5,
---	}
---}
---
---SMODS.Consumable { 
---    key = 'quantum_flux',
---    loc_txt = {
---        name = 'Quantum Flux',
---        text = {
---            "Current chips fluxes between {C:attention}95%",
---            "and {C:attention}140%",
---        }
---    },
---    set = 'Subatomic',
---    pos = {x = 0,y = 0}, 
---    atlas = 'SubatomicAt', 
---    config = { extra = {} },
---    discovered = false,
---    cost = 3,
---    loc_vars = function(self, info_queue, card)
---        info_queue[#info_queue+1] = {key = "c_snow_lyman", set = "Other"}
---        return {vars = {}}
---    end,
---    can_use = function(self,card)
---        return true
---    end,
---    use = function(self, card, area, copier)
---        if not G.STATE ~= G.STATES.SELECTING_HAND then
---            G.GAME.chips = math.floor(G.GAME.chips) * math.random(0.95, 1.40)
---            if G.GAME.chips >= G.GAME.blind.chips then
---                G.GAME.current_round.hands_left = 0
---                G.STATE = G.STATES.HAND_PLAYED
---                end_round()
---                G.STATE_COMPLETE = true
---            end
---        end
---    end
---}
---SMODS.Consumable { 
---    key = 'proton',
---    loc_txt = {
---        name = 'Proton',
---        text = {
---            "Base {C:mult}mult{} for {C:green,E:1,S:1.1}three random hands{} is", 
---            "increased by {C:attention}5% to 10%{} and the base {C:blue}chips{}", 
---            "for {C:green,E:1,S:1.1}three different random hands{} is",
---            "decreased by {C:attention}2% to 10%{}",
---            "{C:green,E:1,S:1.1}Lyman{}",
---        }
---    },
---    set = 'Subatomic',
---    pos = {x = 1,y = 0}, 
---    atlas = 'SubatomicAt', 
---    config = { extra = {} },
---    discovered = false,
---    cost = 3,
---    loc_vars = function(self, info_queue, card)
---        info_queue[#info_queue+1] = {key = "c_snow_lyman", set = "Other"}
---        return {vars = {}}
---    end,
---    can_use = function(self,card)
---        return true
---    end,
---    use = function(self, card, area, copier)
---        local totalSubed = true
---
---        G.E_MANAGER:add_event(Event({
---            trigger = 'after',
---            delay = 0.1,
---            func = function()
---
---                local poker_hands = {}
---                for k, v in pairs(G.GAME.hands) do
---                    if v.visible then
---                        poker_hands[#poker_hands + 1] = k
---                    end
---                end
---
---                for i = 1, 3 do
---                    local hand = pseudorandom_element(poker_hands, pseudoseed("proton"))
---                    remove_key_from_table(poker_hands, hand)
---                    level_up_hand(card, hand, false, 0)  
---                end
---
---                for i = 1, 2 do
---                    local hand = pseudorandom_element(poker_hands, pseudoseed("proton"))
---                    remove_key_from_table(poker_hands, hand)
---                    level_up_hand(card, hand, false, 0)  
---                end
---
---                local original_level_up_hand = level_up_hand
---                function level_up_hand(card, hand, instant, amount)
---                    
---                    if totalSubed then
---                        local mult_addition = round_to_nearest_tenth(math.random(0.1, 0.3))
---                        local chip_subtraction = round_to_nearest_tenth(math.random(0.1, 0.2))
---
---                        G.GAME.hands[hand].mult = math.max(1, G.GAME.hands[hand].mult + mult_addition)
---                        G.GAME.hands[hand].chips = math.max(0, G.GAME.hands[hand].chips - chip_subtraction)
---
---                        totalSubed = false
---
---                        if not instant then
---                            G.E_MANAGER:add_event(Event({
---                                trigger = 'after',
---                                delay = 0.2,
---                                func = function()
---                                    play_sound('tarot1')
---                                    if card then juice_card_until(card) end
---                                    return true
---                                end
---                            }))
---                        end
---                    else
---                        original_level_up_hand(card, hand, instant, amount)
---                    end
---                end
---
---                return true
---            end
---        }))
---    end
---}
-
 -- Diced Theme
 
 function set_denominator(cur, num)
@@ -1004,7 +842,6 @@ Dice = {
     "j_snow_infinityDice",
     "j_snow_fluxDice",
     "j_snow_fudgeDice",
-    "j_snow_erm_noDice",
 }
 
 -- Inefficient
@@ -1228,45 +1065,45 @@ SMODS.Joker {
     calculate = function(self, card, context)
     end
 }
-SMODS.Joker {
-    key = 'erm_noDice',
-    config = {
-        extra = {temp = 0},
-    },
-    atlas = 'Joker',
-    pos = { x = 1, y = 4 },
-    loc_txt = {
-        ['en-us'] = {
-            name = "Erm... No Dice?",
-            text = {
-                "Jokers and Tarots with {C:green}probabilties{} cannot spawn.",
-            }
-        }
-    },
-    rarity = 1,
-    cost = 4,
-    blueprint_compat = false,
-    add_to_deck = function(self, from_debuff)
-        self.added_to_deck = true
-        tempvars = {}
-        for k, v in pairs(ProbabilityObjects) do 
-            insert_table(tempvars, ProbabilityObjects.weight[k])
-			SMODS.ProbabilityObjects[k].weight = 0
-		end
-    end,
-    remove_from_deck = function(self, from_debuff)
-        self.added_to_deck = false
-		for k, v in pairs(ProbabilityObjects) do 
-			ProbabilityObjects.weight[k] = tempvars[k]
-		end
-    end,
-    loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
-        return { vars = {} }
-    end,
-    calculate = function(self, card, context)
-    end
-}
+--SMODS.Joker {
+--    key = 'erm_noDice', rainbow
+--    config = {
+--        extra = {temp = 0},
+--    },
+--    atlas = 'Joker',
+--    pos = { x = 1, y = 4 },
+--    loc_txt = {
+--        ['en-us'] = {
+--            name = "Erm... No Dice?",
+--            text = {
+--                "Jokers and Tarots with {C:green}probabilties{} cannot spawn.",
+--            }
+--        }
+--    },
+--    rarity = 1,
+--    cost = 4,
+--    blueprint_compat = false,
+--    add_to_deck = function(self, from_debuff)
+--        self.added_to_deck = true
+--        tempvars = {}
+--        for k, v in pairs(ProbabilityObjects) do 
+--            insert_table(tempvars, ProbabilityObjects.weight[k])
+--			SMODS.ProbabilityObjects[k].weight = 0
+--		end
+--    end,
+--    remove_from_deck = function(self, from_debuff)
+--        self.added_to_deck = false
+--		for k, v in pairs(ProbabilityObjects) do 
+--			ProbabilityObjects.weight[k] = tempvars[k]
+--		end
+--    end,
+--    loc_vars = function(self, info_queue, card)
+--        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+--        return { vars = {} }
+--    end,
+--    calculate = function(self, card, context)
+--    end
+--}
 --SMODS.Joker {
 --    key = 'huh_a_7Dice',
 --    config = {
@@ -1343,7 +1180,7 @@ SMODS.Joker {
 --    calculate = function(self, card, context)
 --        if pseudorandom('lucky_money') < G.GAME.probabilities.normal then
 --            for k, v in pairs(G.GAME.probabilities) do 
---			    G.GAME.probabilities[k] = v+1
+--			    G.GAME.probabilities[k] = v+1 weight
 --            end
 --        end
 --    end
@@ -1880,52 +1717,6 @@ SMODS.Enhancement {
     end,
 }
 
--- Enhancement code
-card_cal_seal = Card.calculate_seal
-function Card:calculate_seal(context)
-    local ret = card_cal_seal(self,context)
-    if self.debuff then return nil end
-    if context.repetition then
-        if self.config.center == G.P_CENTERS.m_snow_platinum_card then
-            if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/3 then
-                return {
-                    message = localize('k_again_ex'),
-                    repetitions = 1,
-                    card = self
-                }
-            end
-        end
-        if self.config.center == G.P_CENTERS.snow_a_club then
-            if context.joker_main and context.cardarea == G.jokers then
-                local bolcoco = true 
-                for k, v in ipairs(context.full_hand) do 
-                    bolcoco = bolcoco and (v:get_suit() == 'Clubs') 
-                end 
-                if bolcoco then 
-                    return {
-                        message = localize('k_again_ex'),
-                        repetitions = 1,
-                        card = self
-                    }
-                end 
-            end
-        end
-    end
-    if context.cardarea == G.play then
-        if self.config.center == G.P_CENTERS.m_snow_platinum_card then
-            if pseudorandom('platinum_prob') < G.GAME.probabilities.normal/15 then
-                for k, v in pairs(G.GAME.probabilities) do 
-                    G.GAME.probabilities[k] = v+0.2
-                end
-                return {
-                    message = localize('sj_prob'),
-                }
-            end
-        end
-    end
-    return ret
-end
-
 -- Augmentations
 --SMODS.Atlas { key = 'Augment', path = 'Augmentations.png', px = 53, py = 63 }
 --
@@ -1989,7 +1780,7 @@ end
 --    end,
 --    use = function(self, card)
 --        for i=1, #G.jokers.highlighted do
---            G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function() G.jokers.highlighted[i]:set_ability(G.P_CENTERS.snow_a_club);return true end }))
+--            G.jokers.highlighted[i].ability.augment = 'Club_Trigger'
 --        end 
 --    end,
 --}
@@ -2098,39 +1889,6 @@ end
 --        end
 --    end,
 --}
---
---local config = SMODS.current_mod.config
---
----- CONFIG TAB
---SMODS.current_mod.config_tab = function()
---    return {
---        -- ROOT NODE
---        n = G.UIT.ROOT,
---        config = {r = 0.1, minw = 7, minh = 5, align = "tm", padding = 1, colour = G.C.BLACK},
---        nodes = {
---            {
---                -- COLUMN NODE TO ALIGN EVERYTHING INSIDE VERTICALLY
---                n = G.UIT.C,
---                config = {align = "tm", padding = 0.1, colour = G.C.BLACK},
---                nodes = {
---                    {
---                        -- ROW NODE TO ALIGN THE Holiday TEXT AND INPUT BOX HORIZONTALLY
---                        n = G.UIT.R,
---                        config = {align = "cl", minw = 6, minh = 1, colour = G.C.BLACK},
---                        nodes = {
---                            create_toggle({
---                                text = "Holiday: ",
---                                id = 'Input:Holiday',
---                                ref_table = config,
---                                ref_value = 'Holiday'
---                            })
---                        }
---                    },
---                }
---            }
---        }
---    }
---end
 
 function SMODS.current_mod.set_debuff(card)
 	if (next(SMODS.find_card('j_snow_love_is_blind')) and (card:is_suit('Hearts', true))) then
@@ -2138,28 +1896,56 @@ function SMODS.current_mod.set_debuff(card)
 	end
 end
 
---local Card_add_to_deck_ref = Card.add_to_deck 
---function Card.add_to_deck(self, from_debuff)
---    if self.added_to_deck then
---        if not get_denominator(self) == nil and not self.config.extra.odds == nil then
---            insert_table(denominators, get_denominator(self))
+-- Enhancement code
+card_cal_seal = Card.calculate_seal
+function Card:calculate_seal(context)
+    local ret = card_cal_seal(self,context)
+    if self.debuff then return nil end
+    if context.repetition then
+        if self.config.center == G.P_CENTERS.m_snow_platinum_card then
+            if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/3 then
+                return {
+                    message = localize('k_again_ex'),
+                    repetitions = 1,
+                    card = self
+                }
+            end
+        end
+    end
+    if context.cardarea == G.play then
+        if self.config.center == G.P_CENTERS.m_snow_platinum_card then
+            if pseudorandom('platinum_prob') < G.GAME.probabilities.normal/15 then
+                for k, v in pairs(G.GAME.probabilities) do 
+                    G.GAME.probabilities[k] = v+0.2
+                end
+                return {
+                    message = localize('sj_prob'),
+                }
+            end
+        end
+    end
+    return ret
+end
+
+--card_calculate_joker = Card.calculate_joker
+--function Card:calculate_joker(context)
+--    local k = card_calculate_joker(self,context)
+--    if self.ability.augment == 'Club_Trigger' then
+--        if context.joker_main and context.cardarea == G.jokers then
+--            local bolcoco = true 
+--            for k, v in ipairs(context.full_hand) do 
+--                bolcoco = bolcoco and (v:get_suit() == 'Clubs') 
+--            end 
+--            if bolcoco then 
+--                return {
+--                    message = localize('k_again_ex'),
+--                    repetitions = 1,
+--                    card = self
+--                }
+--            end 
 --        end
 --    end
---	Card_add_to_deck_ref(self, from_debuff)
---end
-
---local calculate_jokerref = Card.calculate_joker
---function Card.calculate_joker(self, context)
---    local calc_ref = calculate_jokerref(self, context)
---    se
---    return calc_ref
---end
---
---local remove_from_deckref = Card.remove_from_deck
---function Card:remove_from_deck(self, from_debuff)
---    local ret = remove_from_deckkref(self, from_debuff)
---    denominators[get_denominator(self)] = nil
---    return ret
+--    return k
 --end
 
 ----------------------------------------------
