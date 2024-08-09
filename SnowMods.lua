@@ -180,7 +180,7 @@ function SMODS.current_mod.process_loc_text()
 end
 
 local mod_path = ''..SMODS.current_mod.path
-if "JokerDisplay" then
+if JokerDisplay then
 	JOKER_DISPLAY = NFS.load(mod_path .. "/JokerDisplayIntegration.lua")()
 end
 
@@ -1928,62 +1928,6 @@ end
 
 -- Augmentations
 --SMODS.Atlas { key = 'Augment', path = 'Augmentations.png', px = 53, py = 63 }
---
---SMODS.Augmentation = {}
---SMODS.Augmentation = SMODS.Center:extend {
---    ref_table = SMODS.Augmentation,
---    set = 'Augmentation',
---    cost = 0,
---    atlas = 'Augment',
---    discovered = true,
---    unlocked = true,
---    available = true,
---    pos = { x = 0, y = 0 },
---    config = {},
---    required_params = {
---        'key',
---    },
---    inject_class = function(self)
---		G.P_Augmentation = {}
---		G.P_CENTER_POOLS["Augmentation"] = {}
---		SMODS.Augmentation.super.inject_class(self)
---	end,
---	inject = function(self)
---		G.P_Augmentation[self.key] = self
---		SMODS.insert_pool(G.P_CENTER_POOLS[self.set], self)
---		self.reverse_lookup_name[G.localization.descriptions["c_snow_suit_augmentation"][self.key:lower()].label or self.loc_txt.label] = self.key
---	end,
---	process_loc_text = function(self)
---		--Creates the tooltip info
---		SMODS.process_loc_text(G.localization.descriptions.Other, self.key, {
---			name = G.localization.descriptions["c_snow_suit_augmentation"][self.key:lower()].label or self.loc_txt.label, 
---			text = G.localization.descriptions["c_snow_suit_augmentation"][self.key:lower()].text or self.loc_txt.text
---		})
---	end,
---    weight = 2
---}
---
---SMODS.Augmentation {
---    key = 'a_club',
---    loc_txt = {
---        name = "Club",
---        text = {
---            "Triggers joker again if",
---            "all played cards are Clubs",
---        }
---    },
---    config = {},
---    atlas = 'Augment',
---    pos = {x = 0, y = 0},
---    loc_vars = function(self, info_queue, card)
---        return { vars = { } }
---    end,
---    register = function(self, order)
---		if order and order == self.order then
---			SMODS.Center.register(self)
---		end
---	end,
---}
 --
 ---- Consumables
 --SMODS.ConsumableType { 
