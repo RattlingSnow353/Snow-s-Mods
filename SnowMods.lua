@@ -103,28 +103,6 @@ local function create_joker(card_type,tag,message,extra)
     end)}))
 end
 
-local BackApply_to_run_ref = Back.apply_to_run
-function Back.apply_to_run(self)
-    BackApply_to_run_ref(self)
-
-    if self.effect.config.DawnDeck then
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                G.GAME.starting_params.hands = G.GAME.starting_params.hands - 1 
-                G.GAME.round_resets.hands = G.GAME.starting_params.hands
-                G.GAME.current_round.hands_left = G.GAME.starting_params.hands
-
-                create_joker('Joker', nil, nil, {forced_key = 'j_snow_dawn_deck', edition = {negative=true}, eternal = true})
-
-                -- Add effect to starting params
-                G.GAME.starting_params.DawnDeck = true
-
-                return true
-            end
-        }))
-    end
-end
-
 function SMODS.current_mod.process_loc_text()
     G.localization.misc.v_dictionary.sj_shift = "Bonus!"
     G.localization.misc.v_dictionary.sj_times = "X#1#"
@@ -749,12 +727,25 @@ SMODS.Back {
     atlas = 'Deck',
     pos = { x = 0, y = 0 },
     config = {DawnDeck = true},
+    apply = function(self, card, context)
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                G.GAME.starting_params.hands = G.GAME.starting_params.hands - 1 
+                G.GAME.round_resets.hands = G.GAME.starting_params.hands
+                G.GAME.current_round.hands_left = G.GAME.starting_params.hands
+
+                create_joker('Joker', nil, nil, {forced_key = 'j_snow_dawn_deck', edition = {negative=true}, eternal = true})
+
+                return true
+            end
+        }))
+    end
 }
 
 -- Other Theme
 
 -- Jokers
-if SMODS.Mods['joker_evolution'] then
+if joker_evolution then
 
     SMODS.Joker {
         key = 'chick',
@@ -1715,6 +1706,27 @@ SMODS.Enhancement {
     loc_vars = function(self, info_queue, card)
         return { vars = {self.config.extra.prob, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
     end,
+    calculate = function(self, card, context)
+        if context.repetition then
+            if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/3 then
+                return {
+                    message = localize('k_again_ex'),
+                    repetitions = 1,
+                    card = self
+                }
+            end
+        end
+        if context.cardarea == G.play then
+            if pseudorandom('platinum_prob') < G.GAME.probabilities.normal/15 then
+                for k, v in pairs(G.GAME.probabilities) do 
+                    G.GAME.probabilities[k] = v+0.2
+                end
+                return {
+                    message = localize('sj_prob'),
+                }
+            end
+        end
+    end
 }
 
 -- Augmentations
@@ -1811,12 +1823,9 @@ SMODS.Enhancement {
 --        return false
 --    end,
 --    use = function(self, card)
---        create_joker('Joker', nil, nil, {forced_key="j_snow_clubbed_joker"})
---        for i = 1, #G.jokers.cards do
---            if G.jokers.cards[i] == G.jokers.highlighted then
---                card:start_dissolve()
---            end
---        end
+--        for i=1, #G.jokers.highlighted do
+--            G.jokers.highlighted[i].ability.augment = 'Spade_Trigger'
+--        end 
 --    end,
 --}
 --SMODS.Consumable{
@@ -1846,12 +1855,9 @@ SMODS.Enhancement {
 --        return false
 --    end,
 --    use = function(self, card)
---        create_joker('Joker', nil, nil, {forced_key="j_snow_clubbed_joker"})
---        for i = 1, #G.jokers.cards do
---            if G.jokers.cards[i] == G.jokers.highlighted then
---                card:start_dissolve()
---            end
---        end
+--        for i=1, #G.jokers.highlighted do
+--            G.jokers.highlighted[i].ability.augment = 'Diamond_Trigger'
+--        end 
 --    end,
 --}
 --SMODS.Consumable{
@@ -1881,12 +1887,9 @@ SMODS.Enhancement {
 --        return false
 --    end,
 --    use = function(self, card)
---        create_joker('Joker', nil, nil, {forced_key="j_snow_clubbed_joker"})
---        for i = 1, #G.jokers.cards do
---            if G.jokers.cards[i] == G.jokers.highlighted then
---                card:start_dissolve()
---            end
---        end
+--        for i=1, #G.jokers.highlighted do
+--            G.jokers.highlighted[i].ability.augment = 'Heart_Trigger'
+--        end 
 --    end,
 --}
 
@@ -1896,57 +1899,28 @@ function SMODS.current_mod.set_debuff(card)
 	end
 end
 
--- Enhancement code
-card_cal_seal = Card.calculate_seal
-function Card:calculate_seal(context)
-    local ret = card_cal_seal(self,context)
-    if self.debuff then return nil end
-    if context.repetition then
-        if self.config.center == G.P_CENTERS.m_snow_platinum_card then
-            if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/3 then
-                return {
-                    message = localize('k_again_ex'),
-                    repetitions = 1,
-                    card = self
-                }
-            end
-        end
-    end
-    if context.cardarea == G.play then
-        if self.config.center == G.P_CENTERS.m_snow_platinum_card then
-            if pseudorandom('platinum_prob') < G.GAME.probabilities.normal/15 then
-                for k, v in pairs(G.GAME.probabilities) do 
-                    G.GAME.probabilities[k] = v+0.2
-                end
-                return {
-                    message = localize('sj_prob'),
-                }
-            end
-        end
-    end
-    return ret
-end
+local get = 0
+local card_calculate_joker = Card.calculate_joker
 
---card_calculate_joker = Card.calculate_joker
---function Card:calculate_joker(context)
---    local k = card_calculate_joker(self,context)
---    if self.ability.augment == 'Club_Trigger' then
---        if context.joker_main and context.cardarea == G.jokers then
---            local bolcoco = true 
---            for k, v in ipairs(context.full_hand) do 
---                bolcoco = bolcoco and (v:get_suit() == 'Clubs') 
---            end 
---            if bolcoco then 
---                return {
---                    message = localize('k_again_ex'),
---                    repetitions = 1,
---                    card = self
---                }
---            end 
---        end
---    end
---    return k
---end
+function Card:calculate_joker(context)
+    local k = card_calculate_joker(self, context)  
+    if self.ability.augment == 'Club_Trigger' then
+        if context.joker_main and context.cardarea == G.jokers then
+            local bolcoco = true
+            for _, v in ipairs(context.full_hand) do 
+                bolcoco = bolcoco and (v:get_suit() == 'Clubs')
+            end 
+            
+            if bolcoco and get <= 2 then
+                get = get + 1 
+                local cal = self:calculate_joker(context)
+                return cal 
+            end
+        end
+    end
+    get = 0 
+    return k  
+end
 
 ----------------------------------------------
 ------------MOD CODE END---------------------
