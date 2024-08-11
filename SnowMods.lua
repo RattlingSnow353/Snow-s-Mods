@@ -1899,28 +1899,28 @@ function SMODS.current_mod.set_debuff(card)
 	end
 end
 
-local get = 0
-local card_calculate_joker = Card.calculate_joker
-
-function Card:calculate_joker(context)
-    local k = card_calculate_joker(self, context)  
-    if self.ability.augment == 'Club_Trigger' then
-        if context.joker_main and context.cardarea == G.jokers then
-            local bolcoco = true
-            for _, v in ipairs(context.full_hand) do 
-                bolcoco = bolcoco and (v:get_suit() == 'Clubs')
-            end 
-            
-            if bolcoco and get <= 2 then
-                get = get + 1 
-                local cal = self:calculate_joker(context)
-                return cal 
-            end
-        end
-    end
-    get = 0 
-    return k  
-end
+--local get = 0
+--local card_calculate_joker = Card.calculate_joker
+--
+--function Card:calculate_joker(context)
+--    local k = card_calculate_joker(self, context)  
+--    if self.ability.augment == 'Club_Trigger' then
+--        if context.joker_main and context.cardarea == G.jokers then
+--            local bolcoco = true
+--            for _, v in ipairs(context.full_hand) do 
+--                bolcoco = bolcoco and (v:get_suit() == 'Clubs')
+--            end 
+--            
+--            if bolcoco and get <= 2 then
+--                get = get + 1 
+--                local cal = self:calculate_joker(context)
+--                return cal 
+--            end
+--        end
+--    end
+--    get = 0 
+--    return k  
+--end
 
 ----------------------------------------------
 ------------MOD CODE END---------------------
