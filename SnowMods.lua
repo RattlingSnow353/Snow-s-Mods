@@ -1707,13 +1707,14 @@ SMODS.Enhancement {
         return { vars = {self.config.extra.prob, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
     end,
     calculate = function(self, card, context)
-        if context.repetition then
+        local ret = {}
+        if context.repetition_only then
             if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/3 then
-                return {
-                    message = localize('k_again_ex'),
-                    repetitions = 1,
-                    card = self
-                }
+                local seals = card:calculate_seal(context)
+                if seals then
+                    ret.seals = seals
+                end
+                return ret
             end
         end
         if context.cardarea == G.play then
