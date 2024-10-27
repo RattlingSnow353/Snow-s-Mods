@@ -826,8 +826,8 @@ function get_denominator(cur)
 end
 
 Dice = {
-    "j_opps",
-    "j_snow_opps_all_glorbsDice",
+    "j_oops",
+    "j_snow_oops_all_glorbsDice",
     "j_snow_what_no_numbersDice",
     "j_snow_sichermanDice",
     "j_snow_infinityDice",
@@ -837,8 +837,8 @@ Dice = {
 
 -- Inefficient
 ProbabilityObjects = {
-    "j_opps",
-    "j_snow_opps_all_glorbsDice",
+    "j_oops",
+    "j_snow_oops_all_glorbsDice",
     "j_snow_what_no_numbersDice",
     "j_snow_sichermanDice",
     "j_snow_infinityDice",
