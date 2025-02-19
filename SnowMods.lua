@@ -426,7 +426,7 @@ SMODS.Joker {
         if context.cardarea == G.play and context.individual then
             if card.ability.extra.suitnum == 2 and context.other_card:is_suit('Clubs') then
                 --Spring
-                shakecard(context.other_card)
+                context.other_card:juice_up()
                 local cen_pool = {}
                 for k, v in pairs(G.P_CENTER_POOLS["Enhanced"]) do
                     if v.key ~= 'm_stone' then 
@@ -457,17 +457,15 @@ SMODS.Joker {
                         key = 'sj_chips',
                         vars = { card.ability.extra.chip_mod }
                     },
-                    card = self
                 }
             end
         end
         if context.joker_main then
             return {
                 -- Return bonus message and apply bonus
-                message = localize{type='variable',key='sj_shift',vars={card.ability.extra.mult, card.ability.extra.chips}},
-                mult_mod = card.ability.extra.current_mult,
-                chip_mod = card.ability.extra.current_chips,
-                card = self
+                mult = card.ability.extra.current_mult,
+                chips = card.ability.extra.current_chips,
+                card = card
             }
         end
         if context.individual and context.cardarea == G.play then
@@ -480,14 +478,13 @@ SMODS.Joker {
                         key = 'sj_mult',
                         vars = { card.ability.extra.mult_mod }
                     },
-                    card = self
                 }
             end
         end
         if context.discard and not context.other_card.debuff then
             if card.ability.extra.suitnum == 1 and context.other_card:is_suit('Spades') then
                 --Winter
-                shakecard(context.other_card)
+                context.other_card:juice_up()
                 local cen_pool = {}
                 for k, v in pairs(G.P_CENTER_POOLS["Enhanced"]) do
                     if v.key ~= 'm_stone' then 
@@ -580,16 +577,17 @@ SMODS.Joker {
             end 
             if not bolcoco then 
                 return {
-                    message = localize { type = 'variable', key = 'a_xmult', vars = { card.ability.extra.current_Xmult } },
-                    Xmult_mod = card.ability.extra.current_Xmult
+                    xmult = card.ability.extra.current_Xmult,
                 }
             else
                 card.ability.extra.current_Xmult = card.ability.extra.current_Xmult + card.ability.extra.Xmult_mod
-                message = localize { type = 'variable', key = 'sj_xmult', vars = { card.ability.extra.Xmult_mod } }
+                card_eval_status_text(card, 'extra', nil, nil, nil, {
+                    message = localize { type = 'variable', key = 'sj_xmult', vars = { card.ability.extra.Xmult_mod }},
+                    colour = G.C.RED,
+                })
             end 
             return {
-                message = localize { type = 'variable', key = 'a_xmult', vars = { card.ability.extra.current_Xmult } },
-                Xmult_mod = card.ability.extra.current_Xmult
+                xmult = card.ability.extra.current_Xmult,
             }
         end
     end
@@ -619,21 +617,16 @@ SMODS.Joker {
     calculate = function(self, card, context)
         if context.cardarea == G.play and context.individual then
             if is_face(context.other_card) and context.scoring_name == card.ability.extra.poker_hand then
-                message = localize {
-                    type = 'variable',
-                    key = 'sj_mult',
-                    vars = { card.ability.extra.mult_mod }
-                }
-                card.ability.extra.current_mult = card.ability.extra.current_mult + card.ability.extra.mult_mod
+                card_eval_status_text(card, 'extra', nil, nil, nil, {
+                    message = localize{type='variable',key='a_mult',vars={card.ability.extra.mult}},
+                    colour = G.C.RED,
+                })
+                card.ability.extra.current_mult = card.ability.extra.current_mult + (card.ability.extra.mult_mod/2)
             end
         end
         if context.joker_main and context.cardarea == G.jokers then
             return {
-                message = localize {
-                    type = 'variable',
-                    key = 'sj_shift'
-                },
-                mult_mod = card.ability.extra.current_mult
+                mult = card.ability.extra.current_mult
             }
         end
     end
@@ -662,11 +655,7 @@ SMODS.Joker {
     calculate = function(self, card, context)
         if context.joker_main and context.cardarea == G.jokers then
             return {
-                message = localize {
-                    type = 'variable',
-                    key = 'sj_shift'
-                },
-                Xmult_mod = card.ability.extra.current_Xmult 
+                xmult = card.ability.extra.current_Xmult,
             }
         end
     end
@@ -1314,7 +1303,7 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'coin',
     config = {
-        extra = {odds = 2, multmod = 2, mult = 0},
+        extra = {odds = 2, multmod = 2, multam = 0},
     },
     atlas = 'Joker',
     pos = { x = 0, y = 3 },
@@ -1332,30 +1321,23 @@ SMODS.Joker {
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
-        return { vars = {card.ability.extra.mult, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.multmod} }
+        return { vars = {card.ability.extra.multam, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.multmod} }
     end,
     calculate = function(self, card, context)
         if context.before then
             if pseudorandom('coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
-                card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.multmod
+                card.ability.extra.multam = card.ability.extra.multam + card.ability.extra.multmod
                 return {
-                    message = localize {
-                        type = 'variable',
-                        key = 'sj_mult',
-                        vars = { card.ability.extra.multmod }
-                    },
+                    card_eval_status_text(card, 'extra', nil, nil, nil, {
+                        message = localize { type = 'variable', key = 'sj_xmult', vars = { card.ability.extra.multmod }},
+                        colour = G.C.RED,
+                    })
                 }
             end
         end
         if context.joker_main then
             return {
-                message = localize {
-                    type = 'variable',
-                    key = 'sj_mult',
-                    vars = { card.ability.extra.mult }
-                },
-                mult_mod = card.ability.extra.mult,
-                card = self
+                mult = card.ability.extra.multam,
             }
         end
     end
@@ -1391,13 +1373,7 @@ SMODS.Joker {
             if hchd then
                 if pseudorandom('heart_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
                     return {
-                        message = localize {
-                            type = 'variable',
-                            key = 'sj_times',
-                            vars = { card.ability.extra.current_Xmult }
-                        },
-                        Xmult_mod = card.ability.extra.current_Xmult,
-                        card = self
+                        xmult = card.ability.extra.current_Xmult,
                     }
                 end
             end
@@ -1407,7 +1383,7 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'club_coin',
     config = {
-        extra = {odds = 2, mult = 50},
+        extra = {odds = 2, multam = 50},
     },
     atlas = 'Joker',
     pos = { x = 0, y = 4 },
@@ -1424,7 +1400,7 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.mult, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        return { vars = {card.ability.extra.multam, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
     end,
     calculate = function(self, card, context)
         if context.joker_main and context.cardarea == G.jokers then
@@ -1435,13 +1411,7 @@ SMODS.Joker {
             if cccd then
                 if pseudorandom('club_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
                     return {
-                        message = localize {
-                            type = 'variable',
-                            key = 'sj_mult',
-                            vars = { card.ability.extra.mult }
-                        },
-                        mult_mod = card.ability.extra.mult,
-                        card = self
+                        mult = card.ability.extra.multam,
                     }
                 end
             end
@@ -1480,9 +1450,7 @@ SMODS.Joker {
                 if pseudorandom('spade_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
                     return {
                         -- Return bonus message and apply bonus
-                        message = localize{type='variable',key='sj_chips', vars={card.ability.extra.chips}},
-                        chip_mod = card.ability.extra.chips,
-                        card = self
+                        chips = card.ability.extra.chips,
                     }
                 end
             end
@@ -1520,6 +1488,10 @@ SMODS.Joker {
             if scsd then
                 if pseudorandom('diamond_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
                     G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                            message = '$'..number_format(card.ability.extra.money),
+                            colour = G.C.MONEY,
+                        })
                         ease_dollars(self.config.extra.money, true)
                         return true end }))
                 end
@@ -1553,13 +1525,7 @@ SMODS.Joker {
         if pseudorandom('ghost_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
             if context.joker_main and context.cardarea == G.jokers then
                 return {
-                    message = localize {
-                        type = 'variable',
-                        key = 'sj_times',
-                        vars = { card.ability.extra.current_Xmult }
-                    },
-                    Xmult_mod = card.ability.extra.current_Xmult,
-                    card = self
+                    xmult = card.ability.extra.current_Xmult,
                 }
             end
         end
@@ -1590,9 +1556,9 @@ SMODS.Joker {
         if pseudorandom('liquid_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
             if context.retrigger_joker_check and not context.retrigger_joker then
 				return {
-					message = localize('k_again_ex'),
-					repetitions = self.config.num_retriggers,
-					card = card
+					message = localize("k_again_ex"),
+					repetitions = num_retriggers,
+					card = card,
 				}
 		    end
         end
@@ -1896,7 +1862,17 @@ SMODS.Enhancement {
 
 function SMODS.current_mod.set_debuff(card)
 	if (next(SMODS.find_card('j_snow_love_is_blind')) and (card:is_suit('Hearts', true))) then
-		return true
+        local trigger = true
+        for j = 1, #G.jokers.cards do
+            if card == G.jokers.cards[j] then
+                trigger = false
+            end
+        end
+        if trigger then
+		    return true
+        else
+            return false
+        end
 	end
 end
 
