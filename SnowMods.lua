@@ -1554,13 +1554,16 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if pseudorandom('liquid_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            if context.retrigger_joker_check and not context.retrigger_joker then
-				return {
-					message = localize("k_again_ex"),
-					repetitions = num_retriggers,
-					card = card,
-				}
-		    end
+            if context.repetition_only or (context.retrigger_joker_check) then
+                for i = 1, #G.jokers.cards do
+                    return {
+                        repetitions = card.ability.extra.num_retriggers,
+                        card = G.jokers.cards[i],
+                        colour = G.C.GREEN,
+                        message = localize('k_again_ex')
+                    }  
+                end  
+            end
         end
     end
 }
