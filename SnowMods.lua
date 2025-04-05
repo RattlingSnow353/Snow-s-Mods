@@ -1670,29 +1670,28 @@ SMODS.Enhancement {
     },
     pos = {x = 0, y = 0}, 
     atlas = 'Enhancers', 
-    config = { extra = {p_dollars = 4, platinum_trigger = false, prob = 0.2} },
+    config = { extra = { prob = 0.1} },
     discovered = true,
     loc_vars = function(self, info_queue, card)
         return { vars = {self.config.extra.prob, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
     end,
     calculate = function(self, card, context)
-        local ret = {}
-        if context.repetition_only then
-            if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/3 then
-                local seals = card:calculate_seal(context)
-                if seals then
-                    ret.seals = seals
-                end
-                return ret
+        if context.cardarea == G.play and context.repetition then
+            if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/6 then
+                return {
+                    message = localize('k_again_ex'),
+                    repetitions = 1,
+                    card = card
+                }
             end
         end
-        if context.cardarea == G.play then
-            if pseudorandom('platinum_prob') < G.GAME.probabilities.normal/15 then
+        if context.main_scoring and context.cardarea == G.play then
+            if pseudorandom('platinum_prob') < G.GAME.probabilities.normal/18 then
                 for k, v in pairs(G.GAME.probabilities) do 
-                    G.GAME.probabilities[k] = v+0.2
+                    G.GAME.probabilities[k] = v+card.ability.extra.prob
                 end
                 return {
-                    message = localize('sj_prob'),
+                    message = localize{type='variable',key='sj_prob',vars={card.ability.extra.prob}},
                 }
             end
         end
