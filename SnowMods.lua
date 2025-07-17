@@ -5,7 +5,7 @@
 --- MOD_DESCRIPTION: This mod adds a varity of jokers to the game. 
 --- BADGE_COLOUR: 60efff
 --- DISPLAY_NAME: Snows Mods
---- VERSION: 0.2.0
+--- VERSION: 0.2.2
 --- PREFIX: snow
 
 ----------------------------------------------
