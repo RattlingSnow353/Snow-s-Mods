@@ -190,7 +190,8 @@ SMODS.Joker {
     rarity = 1,
     cost = 4,
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.money } }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = { denominator, numerator, card.ability.extra.money } }
     end,
     calculate = function(self, card, context)
         if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
@@ -200,7 +201,7 @@ SMODS.Joker {
                 card.ability.extra_value = card.ability.extra_value + card.ability.extra.money
                 card:set_cost()
                 card.ability.extra._every = card.ability.extra._every + 1
-                if pseudorandom('lucky_money') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                if SMODS.pseudorandom_probability(card, 'lucky_money', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                     card:start_dissolve()
                     return
                 end
@@ -353,12 +354,13 @@ SMODS.Joker {
     cost = 6,
     blueprint_compat = false,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.money, card.ability.extra.submon} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {denominator, numerator, card.ability.extra.money, card.ability.extra.submon} }
     end,
     calculate = function(self, card, context)
         if context.setting_blind and not card.getting_sliced then
             G.E_MANAGER:add_event(Event({func = function()
-                if pseudorandom('lucky_money') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                if SMODS.pseudorandom_probability(card, 'lucky_money', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                     G.GAME.round_resets.reroll_cost = G.GAME.round_resets.reroll_cost + card.ability.extra.money
                     card.ability.extra.money = card.ability.extra.money - card.ability.extra.submon
                     card.ability.extra.cr = 1
@@ -805,15 +807,6 @@ end
 
 -- Diced Theme
 
-function set_denominator(cur, num)
-    cur.ability.extra.odds = num
-    return cur.ability.extra.odds
-end
-
-function get_denominator(cur)
-    return cur.ability.extra.odds
-end
-
 Dice = {
     "j_oops",
     "j_snow_oops_all_glorbsDice",
@@ -822,46 +815,19 @@ Dice = {
     "j_snow_infinityDice",
     "j_snow_fluxDice",
     "j_snow_fudgeDice",
+    "j_snow_huh_a_7Dice",
+    "j_snow_cool_a_5Dice",
+    "j_snow_what_is_the_dice",
+    "j_snow_what_void_dice",
+    "j_snow_yes_some_4sDice",
+    "j_snow_uh_got_3Dice",
+    "j_snow_oh_its_2Dice",
 }
-
--- Inefficient
-ProbabilityObjects = {
-    "j_oops",
-    "j_snow_oops_all_glorbsDice",
-    "j_snow_what_no_numbersDice",
-    "j_snow_sichermanDice",
-    "j_snow_infinityDice",
-    "j_snow_fluxDice",
-    "j_snow_fudgeDice",
-    "j_snow_oops_all_oopsDice",
-    "j_snow_erm_noDice",
-    "j_snow_bent_coin",
-    "c_snow_fuel_cell",
-    "j_snow_metal_coin",
-    "j_snow_liquid_coin",
-    "j_snow_ghost_coin",
-    "j_snow_diamond_coin",
-    "j_snow_spade_coin",
-    "j_snow_club_coin",
-    "j_snow_heart_coin",
-    "j_snow_coin",
-    "j_bloodstone",
-    "j_cavendish",
-    "j_space_joker",
-    "j_gros_michel",
-    "j_business_card",
-    "j_reserved_parking",
-    "j_hallucination",
-    "c_wheel_of_fortune",
-}
-
-denominators = {}
-
 -- Dice
 SMODS.Joker {
     key = 'opps_all_glorbsDice',
     config = {
-        extra = {temp = 0, temp2 = 0, tempdem = {}, tempdem2 = {}},
+        extra = {},
     },
     atlas = 'Joker',
     pos = { x = 0, y = 2 },
@@ -877,25 +843,18 @@ SMODS.Joker {
     rarity = 1,
     cost = 4,
     blueprint_compat = false,
-    add_to_deck = function(self, from_debuff)
-        self.added_to_deck = true
-		for k, v in pairs(G.GAME.probabilities) do 
-            self.config.extra.temp = math.random(0.1, 10)
-			G.GAME.probabilities[k] = v*self.config.extra.temp
-		end
-    end,
-    remove_from_deck = function(self, from_debuff)
-        self.added_to_deck = false
-		for k, v in pairs(G.GAME.probabilities) do 
-			G.GAME.probabilities[k] = v/self.config.extra.temp
-		end
+    calculate = function(self, card, context)
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = math.random(0, context.denominator) ,
+                denominator = context.denominator
+            }
+        end
     end,
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = {key = "c_snow_dieuwt", set = "Other"}
         return { vars = {} }
     end,
-    calculate = function(self, card, context)
-    end
 }
 SMODS.Joker {
     key = 'what_no_numbersDice',
@@ -916,142 +875,26 @@ SMODS.Joker {
     rarity = 2,
     cost = 6,
     blueprint_compat = false,
-    add_to_deck = function(self, from_debuff)
-        self.added_to_deck = true
-		for k, v in pairs(G.GAME.probabilities) do 
-			if G.GAME.probabilities[k] == 1 and not next(SMODS.find_card('j_oops')) then
-				G.GAME.probabilities[k] = 0
-			else
-                self.config.extra.temp = v
-				G.GAME.probabilities[k] = 0
-			end
-		end
-    end,
-    remove_from_deck = function(self, from_debuff)
-        self.added_to_deck = false
-		for k, v in pairs(G.GAME.probabilities) do 
-			if G.GAME.probabilities[k] == 0 then
-				G.GAME.probabilities[k] = 1
-				if next(SMODS.find_card('j_oops')) then
-					for kk, vv in pairs(G.jokers.cards) do
-						if vv.config.name == 'Oops! All 6s' then
-							G.GAME.probabilities[k] = self.config.extra.temp
-						end
-					end
-				end
-			else
-				G.GAME.probabilities[k] = self.config.extra.temp
-			end
-		end
+    calculate = function(self, card, context)
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.numerator * 0,
+                denominator = context.denominator
+            }
+        end
     end,
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = {key = "c_snow_loganboi2flare", set = "Other"}
         return { vars = {} }
     end,
-    calculate = function(self, card, context)
-    end
-}
-SMODS.Joker {
-    key = 'sichermanDice',
-    config = {
-        extra = {temp = 0},
-    },
-    atlas = 'Joker',
-    pos = { x = 5, y = 2 },
-    loc_txt = {
-        ['en-us'] = {
-            name = "Sicherman",
-            text = {
-                "All Probabilities {C:green}double{} or {C:mult}half{} each {C:attention}round{}.",
-                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}(0.5/2)/3{}{C:inactive})",
-            }
-        }
-    },
-    rarity = 2,
-    cost = 6,
-    blueprint_compat = false,
-    add_to_deck = function(self, from_debuff)
-        self.added_to_deck = true
-        local prob = math.random(1,2)
-		for k, v in pairs(G.GAME.probabilities) do 
-			if prob == 1 then
-                self.config.extra.temp = v
-				G.GAME.probabilities[k] = v/2
-			else
-                self.config.extra.temp = v
-				G.GAME.probabilities[k] = v*2
-			end
-		end
-    end,
-    remove_from_deck = function(self, from_debuff)
-        self.added_to_deck = false
-		for k, v in pairs(G.GAME.probabilities) do 
-			G.GAME.probabilities[k] = self.config.extra.temp
-		end
-    end,
-    loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
-        return { vars = {} }
-    end,
-    calculate = function(self, card, context)
-        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
-            local prob = math.random(1,2)
-            for k, v in pairs(G.GAME.probabilities) do 
-			    if prob == 1 then
-				    G.GAME.probabilities[k] = self.config.extra.temp/2
-			    else
-				    G.GAME.probabilities[k] = self.config.extra.temp*2
-			    end
-		    end
-        end
-    end
-}
-SMODS.Joker {
-    key = 'infinityDice',
-    config = {
-        extra = {temp = 0},
-    },
-    atlas = 'Joker',
-    pos = { x = 4, y = 2 },
-    loc_txt = {
-        ['en-us'] = {
-            name = "AAAH?! It's Infinity!?",
-            text = {
-                "All Probabilities become {C:green}certain{}",
-                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}999999999999/3{}{C:inactive})",
-            }
-        }
-    },
-    rarity = 3,
-    cost = 8,
-    blueprint_compat = false,
-    add_to_deck = function(self, from_debuff)
-        self.added_to_deck = true
-		for k, v in pairs(G.GAME.probabilities) do 
-            self.config.extra.temp = v
-			G.GAME.probabilities.normal = v*1e300
-		end
-    end,
-    remove_from_deck = function(self, from_debuff)
-        self.added_to_deck = false
-		for k, v in pairs(G.GAME.probabilities) do 
-			G.GAME.probabilities[k] = self.config.extra.temp
-		end
-    end,
-    loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
-        return { vars = {} }
-    end,
-    calculate = function(self, card, context)
-    end
 }
 --SMODS.Joker {
---    key = 'erm_noDice', rainbow
+--    key = 'erm_noDice',
 --    config = {
 --        extra = {temp = 0},
 --    },
 --    atlas = 'Joker',
---    pos = { x = 1, y = 4 },
+--    pos = { x = 3, y = 4 },
 --    loc_txt = {
 --        ['en-us'] = {
 --            name = "Erm... No Dice?",
@@ -1084,91 +927,255 @@ SMODS.Joker {
 --    calculate = function(self, card, context)
 --    end
 --}
---SMODS.Joker {
---    key = 'huh_a_7Dice',
---    config = {
---        extra = {temp = 0},
---    },
---    atlas = 'Joker',
---    pos = { x = 2, y = 4 },
---    loc_txt = {
---        ['en-us'] = {
---            name = "Huh? A 7!:",
---            text = {
---                "All Probabilities’s denominators are increased by 1",
---                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}1/4{}{C:inactive})",
---            }
---        }
---    },
---    rarity = 3,
---    cost = 8,
---    blueprint_compat = false,
---    add_to_deck = function(self, from_debuff)
---        self.added_to_deck = true
---		for k, v in pairs(denominators) do 
---            self.config.extra.temp = v
---			set_denominator(self, v+1)
---		end
---    end,
---    remove_from_deck = function(self, from_debuff)
---        self.added_to_deck = false
---		for k, v in pairs(denominators) do 
---			set_denominator(self, self.config.extra.temp)
---		end
---    end,
---    loc_vars = function(self, info_queue, card)
---        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
---        return { vars = {} }
---    end,
---    calculate = function(self, card, context)
---    end
---}
---SMODS.Joker {
---    key = 'cool_a_5Dice',
---    config = {
---        extra = {temp = 0, odds = 1},
---    },
---    atlas = 'Joker',
---    pos = { x = 2, y = 2 },
---    loc_txt = {
---        ['en-us'] = {
---            name = "Cool! A 5!",
---            text = {
---                "All Probabilities goes {C:green}up{} by 1 per {C:attention}attempt{}",
---                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}#1#/3{}{C:inactive})",
---            }
---        }
---    },
---    rarity = 3,
---    cost = 8,
---    blueprint_compat = false,
---    add_to_deck = function(self, from_debuff)
---        self.added_to_deck = true
---		for k, v in pairs(G.GAME.probabilities) do 
---            self.config.extra.temp = v
---		end
---    end,
---    remove_from_deck = function(self, from_debuff)
---        self.added_to_deck = false
---		for k, v in pairs(G.GAME.probabilities) do 
---			G.GAME.probabilities[k] = self.config.extra.temp
---		end
---    end,
---    loc_vars = function(self, info_queue, card)
---        return { vars = {self.config.extra.odds} }
---    end,
---    calculate = function(self, card, context)
---        if pseudorandom('lucky_money') < G.GAME.probabilities.normal then
---            for k, v in pairs(G.GAME.probabilities) do 
---			    G.GAME.probabilities[k] = v+1 weight
---            end
---        end
---    end
---}
+SMODS.Joker {
+    key = 'oh_its_2Dice',
+    config = {
+        extra = {odds = 0},
+    },
+    atlas = 'Joker',
+    pos = { x = 1, y = 4 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "Oh, It's 2",
+            text = {
+                "Cards odds {C:green}double{} per time it",
+                "{C:red}didn't{} hit. When hit, {C:attention}reset{}",
+                "to normal",
+                "{C:inactive}(ex: {C:green}1/4{}{C:inactive} -> {C:green}#1#/4{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 3,
+    cost = 8,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        local temp = card.ability.extra.odds * 2
+        if temp == 0 then
+            temp = 1
+        end
+        return { vars = {temp} }
+    end,
+    calculate = function(self, card, context)
+        if context.pseudorandom_result then  
+            if not context.result then
+                card.ability.extra.odds = card.ability.extra.odds + 1
+            else
+                card.ability.extra.odds = 0
+                card_eval_status_text(card, 'extra', nil, nil, nil, { message = "Reset!", colour = G.C.FILTER })
+            end
+        end
+        if context.mod_probability and context.trigger_obj then
+            local temp = card.ability.extra.odds * 2
+            if temp == 0 then
+                temp = 1
+            end
+            return {
+                numerator = context.numerator * temp,
+                denominator = context.denominator
+            }
+        end
+    end,
+}
+SMODS.Joker {
+    key = 'uh_got_3Dice',
+    config = {
+        extra = {odds = 0},
+    },
+    atlas = 'Joker',
+    pos = { x = 4, y = 4 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "Uh... got 3",
+            text = {
+                "All Probabilities become {C:green}1 in 3",
+                "{C:inactive}(ex: {C:green}2/4{}{C:inactive} -> {C:green}1/3{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 2,
+    cost = 6,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        return { vars = {card.ability.extra.odds + 1} }
+    end,
+    calculate = function(self, card, context)
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = 1,
+                denominator = 3
+            }
+        end
+    end
+}
+SMODS.Joker {
+    key = 'yes_some_4sDice',
+    config = {
+        extra = {odds = 0},
+    },
+    atlas = 'Joker',
+    pos = { x = 5, y = 4 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "Yes! Some 4s!",
+            text = {
+                "All denominators {C:attention}cycle{}",
+                "when triggered",
+                "{C:inactive}({C:green}1/4{}{C:inactive} -> {C:green}1/3{}{C:inactive} -> {C:green}1/2{}{C:inactive} -> {C:green}1/1{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 3,
+    cost = 8,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        return { vars = {card.ability.extra.odds + 1} }
+    end,
+    calculate = function(self, card, context)
+        if context.pseudorandom_result then  
+            if context.result then
+                card.ability.extra.odds = card.ability.extra.odds - 1
+                if card.ability.extra.odds == 0 then
+                    card.ability.extra.odds = 4
+                end
+            end
+        end
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.numerator,
+                denominator = card.ability.extra.odds
+            }
+        end
+    end
+}
+SMODS.Joker {
+    key = 'cool_a_5Dice',
+    config = {
+        extra = {odds = 0},
+    },
+    atlas = 'Joker',
+    pos = { x = 2, y = 2 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "Cool! A 5!",
+            text = {
+                "All Probabilities goes {C:green}up{} by",
+                "{C:attention}1{} per {C:attention}attempt{}",
+                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}#1#/3{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 3,
+    cost = 8,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        return { vars = {card.ability.extra.odds + 1} }
+    end,
+    calculate = function(self, card, context)
+        if context.pseudorandom_result then  
+            if not context.result then
+                card.ability.extra.odds = card.ability.extra.odds + 1
+            else
+                card.ability.extra.odds = 0
+            end
+        end
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.numerator + card.ability.extra.odds,
+                denominator = context.denominator
+            }
+        end
+    end
+}
+SMODS.Joker {
+    key = 'sichermanDice',
+    config = {
+        extra = {prob = true},
+    },
+    atlas = 'Joker',
+    pos = { x = 5, y = 2 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "Sicherman",
+            text = {
+                "All Probabilities {C:green}double{} or",
+                "{C:mult}half{} each {C:attention}round{}.",
+                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}(0.5/2)/3{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 2,
+    cost = 6,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        return { vars = {} }
+    end,
+    calculate = function(self, card, context)
+        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
+            card.ability.extra.prob = math.random(1,2)
+            if card.ability.extra.prob == 1 then
+				card.ability.extra.prob = true
+			else
+				card.ability.extra.prob = false
+			end
+        end
+        if context.mod_probability and context.trigger_obj then
+            if card.ability.extra.prob then
+				return {
+                    numerator = context.numerator / 2,
+                    denominator = context.denominator
+                }
+			else
+				return {
+                    numerator = context.numerator * 2,
+                    denominator = context.denominator
+                }
+			end
+            
+        end
+    end
+}
+SMODS.Joker {
+    key = 'huh_a_7Dice',
+    config = {
+        extra = {temp = 0},
+    },
+    atlas = 'Joker',
+    pos = { x = 2, y = 4 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "Huh? A 7!",
+            text = {
+                "All Probabilities denominators",
+                "are {C:green}increased{} by {C:attention}1",
+                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}1/4{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 2,
+    cost = 6,
+    blueprint_compat = false,
+    calculate = function(self, card, context)
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.numerator,
+                denominator = context.denominator + 1
+            }
+        end
+    end,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2flare", set = "Other"}
+        return { vars = {} }
+    end,
+}
 SMODS.Joker {
     key = 'fudgeDice',
     config = {
-        extra = {temp = 0},
+        extra = {prob = true},
     },
     atlas = 'Joker',
     pos = { x = 6, y = 2 },
@@ -1177,7 +1184,8 @@ SMODS.Joker {
             name = "Fudge Dice",
             text = {
                 "All Probabilties are {C:green}increased{} or",
-                "{C:mult}decreased{} by 1 randomly each {C:attention}round{}.",
+                "{C:mult}decreased{} by {C:attention}1{} randomly",
+                "each {C:attention}round{}",
                 "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}(+1/-1)/3{}{C:inactive})",
             }
         }
@@ -1185,34 +1193,111 @@ SMODS.Joker {
     rarity = 1,
     cost = 4,
     blueprint_compat = false,
-    add_to_deck = function(self, from_debuff)
-        self.added_to_deck = true
-		for k, v in pairs(G.GAME.probabilities) do 
-            self.config.extra.temp = v
-		end
-    end,
-    remove_from_deck = function(self, from_debuff)
-        self.added_to_deck = false
-		for k, v in pairs(G.GAME.probabilities) do 
-			G.GAME.probabilities[k] = self.config.extra.temp
-		end
+    calculate = function(self, card, context)
+        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
+            card.ability.extra.prob = math.random(1,2)
+            if card.ability.extra.prob == 1 then
+				card.ability.extra.prob = true
+			else
+				card.ability.extra.prob = false
+			end
+        end
+        if context.mod_probability and context.trigger_obj then
+            if card.ability.extra.prob then
+				return {
+                    numerator = context.numerator + 1,
+                    denominator = context.denominator
+                }
+			else
+				return {
+                    numerator = context.numerator - 1,
+                    denominator = context.denominator
+                }
+			end
+        end
     end,
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
         return { vars = {} }
     end,
+}
+SMODS.Joker {
+    key = 'what_is_the_dice',
+    config = {
+        extra = {odds = 1},
+    },
+    atlas = 'Joker',
+    pos = { x = 6, y = 4 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "What... Is The Dice?",
+            text = {
+                "Rolls a {C:attention}D20{}, the denominator",
+                "becomes the {C:attention}result",
+                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}1/#1#{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 2,
+    cost = 6,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        return { vars = {card.ability.extra.odds} }
+    end,
     calculate = function(self, card, context)
-        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
-            local ran = math.random(1,2)
-            for k, v in pairs(G.GAME.probabilities) do 
-                if ran == 1 then
-                    G.GAME.probabilities[k] = v-1
-                else
-                    G.GAME.probabilities[k] = v+1
-                end
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.numerator,
+                denominator = card.ability.extra.odds
+            }
+        end
+    end,
+    add_to_deck = function(self, card, from_debuff)
+        card.ability.extra.odds = math.random(1, 20)
+        card_eval_status_text(card, 'extra', nil, nil, nil, { message = card.ability.extra.odds, colour = G.C.FILTER })
+    end,
+}
+SMODS.Joker {
+    key = 'what_void_dice',
+    config = {
+        extra = {odds = 4, counter = 1},
+    },
+    atlas = 'Joker',
+    pos = { x = 7, y = 4 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "What! Void Dice!",
+            text = {
+                "All Probabilities become {C:green}certain{}",
+                "but when triggered {C:red}decrease",
+                "by {C:attention}half",
+                "{C:inactive}(ex: {C:green}1/4{}{C:inactive} -> {C:green}#1#/4{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 2,
+    cost = 6,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        return { vars = {4 * card.ability.extra.counter} }
+    end,
+    calculate = function(self, card, context)
+        if context.pseudorandom_result then  
+            if context.result then
+                card.ability.extra.counter = card.ability.extra.counter / 2
+                card_eval_status_text(card, 'extra', nil, nil, nil, { message = "/2", colour = G.C.FILTER })
             end
         end
-    end
+        if context.mod_probability and context.trigger_obj then
+            card.ability.extra.odds = context.denominator * card.ability.extra.counter
+            return {
+                numerator = card.ability.extra.odds,
+                denominator = context.denominator
+            }
+        end
+    end,
 }
 SMODS.Joker {
     key = 'fluxDice',
@@ -1226,44 +1311,67 @@ SMODS.Joker {
             name = "Flux Dice",
             text = {
                 "All Probabilties are {C:mult}multiplied{} by {C:green}X#2#{}.",
-                "Gains {C:green}X#1#{} every time a {C:attention}lucky card{} is scored.",
+                "Gains {C:green}X#1#{} every time a {C:attention}lucky",
+                "{C:attention}card{} is scored",
             }
         }
     },
     rarity = 2,
     cost = 6,
     blueprint_compat = false,
-    add_to_deck = function(self, from_debuff)
-        self.added_to_deck = true
-		for k, v in pairs(G.GAME.probabilities) do 
-            self.config.extra.temp = v
-		end
-    end,
-    remove_from_deck = function(self, from_debuff)
-        self.added_to_deck = false
-		for k, v in pairs(G.GAME.probabilities) do 
-			G.GAME.probabilities[k] = self.config.extra.temp
-		end
-    end,
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
-        return { vars = {self.config.extra.ProbInt, self.config.extra.ProbMult} }
+        return { vars = {card.ability.extra.ProbInt, card.ability.extra.ProbMult} }
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play and context.other_card.config.effect == "Lucky Card" and not context.blueprint then
-            if not context.other_card.lucky_trigger and not self.config.extra.has_triggered then
-                self.config.extra.has_triggered = true
+            if not context.other_card.lucky_trigger and not card.ability.extra.has_triggered then
+                card.ability.extra.has_triggered = true
             end
         end
-
         if context.repetition and context.cardarea == G.play then
-            if not self.config.extra.has_triggered then
-                self.config.extra.ProbMult = self.config.extra.ProbMult + self.config.extra.ProbInt
-                for k, v in pairs(G.GAME.probabilities) do
-                    G.GAME.probabilities[k] = self.config.extra.temp*self.config.extra.ProbMult
-                end
+            if not card.ability.extra.has_triggered then
+                card.ability.extra.ProbMult = card.ability.extra.ProbMult + card.ability.extra.ProbInt
             end
-            self.config.extra.has_triggered = false
+            card.ability.extra.has_triggered = false
+        end
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.numerator * card.ability.extra.ProbMult,
+                denominator = context.denominator
+            }
+        end
+    end
+}
+SMODS.Joker {
+    key = 'infinityDice',
+    config = {
+        extra = {temp = 0},
+    },
+    atlas = 'Joker',
+    pos = { x = 4, y = 2 },
+    loc_txt = {
+        ['en-us'] = {
+            name = "AAAH?! It's Infinity!?",
+            text = {
+                "All Probabilities become {C:green}certain{}",
+                "{C:inactive}(ex: {C:green}1/3{}{C:inactive} -> {C:green}3/3{}{C:inactive})",
+            }
+        }
+    },
+    rarity = 3,
+    cost = 8,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
+        return { vars = {} }
+    end,
+    calculate = function(self, card, context)
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.denominator,
+                denominator = context.denominator
+            }
         end
     end
 }
@@ -1278,7 +1386,8 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Oops! All Oops!",
             text = {
-                "Spawns a {C:attention}random{} dice, {C:mult}destroys{} itself.",
+                "Spawns a {C:attention}random{} dice",
+                "{C:mult}destroys{} itself.",
             }
         }
     },
@@ -1311,7 +1420,9 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to gain {C:mult}+#4#{} mult when hand played",
+                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to",
+                "gain {C:mult}+#4#{} mult when hand",
+                "played",
                 "{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)",
             }
         }
@@ -1321,11 +1432,12 @@ SMODS.Joker {
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
-        return { vars = {card.ability.extra.multam, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.multmod} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.multam, denominator, numerator, card.ability.extra.multmod} }
     end,
     calculate = function(self, card, context)
         if context.before then
-            if pseudorandom('coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+            if SMODS.pseudorandom_probability(card, 'coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                 card.ability.extra.multam = card.ability.extra.multam + card.ability.extra.multmod
                 return {
                     card_eval_status_text(card, 'extra', nil, nil, nil, {
@@ -1353,8 +1465,8 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Heart Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to give {C:mult}X#1#{} mult",
-                "If only {C:mult}Hearts{} are played",
+                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to give {C:mult}X#1#{}",
+                "mult, If only {C:mult}Hearts{} are played",
             }
         }
     },
@@ -1362,7 +1474,8 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.current_Xmult, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.current_Xmult, denominator, numerator} }
     end,
     calculate = function(self, card, context)
         if context.joker_main and context.cardarea == G.jokers then
@@ -1371,7 +1484,7 @@ SMODS.Joker {
                 hchd = hchd and (v:get_suit() == 'Hearts') 
             end 
             if hchd then
-                if pseudorandom('heart_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                if SMODS.pseudorandom_probability(card, 'heart_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                     return {
                         xmult = card.ability.extra.current_Xmult,
                     }
@@ -1391,8 +1504,8 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Club Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to give {C:mult}+#1#{} mult",
-                "If only {C:green}Clubs{} are played",
+                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to give {C:mult}+#1#{} ",
+                "mult, If only {C:green}Clubs{} are played",
             }
         }
     },
@@ -1400,7 +1513,8 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.multam, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.multam, denominator, numerator} }
     end,
     calculate = function(self, card, context)
         if context.joker_main and context.cardarea == G.jokers then
@@ -1409,7 +1523,7 @@ SMODS.Joker {
                 cccd = cccd and (v:get_suit() == 'Clubs') 
             end 
             if cccd then
-                if pseudorandom('club_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                if SMODS.pseudorandom_probability(card, 'club_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                     return {
                         mult = card.ability.extra.multam,
                     }
@@ -1429,8 +1543,8 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Spade Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to give {C:blue}+#1#{} chips",
-                "If only Spades are played",
+                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to give {C:blue}+#1#{}",
+                "chips, If only Spades are played",
             }
         }
     },
@@ -1438,7 +1552,8 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.chips, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.chips, denominator, numerator} }
     end,
     calculate = function(self, card, context)
         if context.joker_main and context.cardarea == G.jokers then
@@ -1447,7 +1562,7 @@ SMODS.Joker {
                 scsd = scsd and (v:get_suit() == 'Spades') 
             end 
             if scsd then
-                if pseudorandom('spade_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                if SMODS.pseudorandom_probability(card, 'spade_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                     return {
                         -- Return bonus message and apply bonus
                         chips = card.ability.extra.chips,
@@ -1477,7 +1592,8 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.money, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.money, denominator, numerator} }
     end,
     calculate = function(self, card, context)
         if context.joker_main and context.cardarea == G.jokers then
@@ -1486,7 +1602,7 @@ SMODS.Joker {
                 scsd = scsd and (v:get_suit() == 'Diamonds') 
             end 
             if scsd then
-                if pseudorandom('diamond_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                if SMODS.pseudorandom_probability(card, 'diamond_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                     G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                         card_eval_status_text(card, 'extra', nil, nil, nil, {
                             message = '$'..number_format(card.ability.extra.money),
@@ -1510,7 +1626,8 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Ghost Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to give {C:mult}X#1#{} mult",
+                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance",
+                "to give {C:mult}X#1#{} mult",
             }
         }
     },
@@ -1519,10 +1636,11 @@ SMODS.Joker {
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = {key = "c_snow_loganboi2", set = "Other"}
-        return { vars = {card.ability.extra.current_Xmult, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.current_Xmult, denominator, numerator} }
     end,
     calculate = function(self, card, context)
-        if pseudorandom('ghost_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+        if SMODS.pseudorandom_probability(card, 'ghost_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
             if context.joker_main and context.cardarea == G.jokers then
                 return {
                     xmult = card.ability.extra.current_Xmult,
@@ -1542,7 +1660,8 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Liquid Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to {C:attention}retrigger{} all jokers",
+                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance",
+                "to {C:attention}retrigger{} all jokers",
             }
         }
     },
@@ -1550,10 +1669,11 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.num_retriggers, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.num_retriggers, denominator, numerator} }
     end,
     calculate = function(self, card, context)
-        if pseudorandom('liquid_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+        if SMODS.pseudorandom_probability(card, 'liquid_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
             if context.repetition_only or (context.retrigger_joker_check) then
                 for i = 1, #G.jokers.cards do
                     return {
@@ -1578,7 +1698,9 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Metal Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to {C:attention}retrigger{} held in hand abilities",
+                "Has a {C:green,E:1,S:1.1}#3# in #2#{} chance to",
+                "{C:attention}retrigger{} held in hand",
+                "abilities",
             }
         }
     },
@@ -1586,11 +1708,12 @@ SMODS.Joker {
     cost = 6,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.num_retriggers, card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {card.ability.extra.num_retriggers, denominator, numerator} }
     end,
     calculate = function(self, card, context)
         if context.repetition and context.cardarea == G.hand then
-            if pseudorandom('metal_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+            if SMODS.pseudorandom_probability(card, 'metal_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                 return {
                     repetitions = 1,
                     card = card
@@ -1610,7 +1733,8 @@ SMODS.Joker {
         ['en-us'] = {
             name = "Bent Coin",
             text = {
-                "Has a {C:green,E:1,S:1.1}#2# in #1#{} chance to double {C:attention}money{}. Else, halve {C:attention}money{}.",
+                "Has a {C:green,E:1,S:1.1}#2# in #1#{} chance to double",
+                "{C:attention}money{}. Else, halve {C:attention}money{}.",
             }
         }
     },
@@ -1618,11 +1742,12 @@ SMODS.Joker {
     cost = 8,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.odds, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        return { vars = {denominator, numerator} }
     end,
     calculate = function(self, card, context)
         if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
-            if pseudorandom('bent_coin') < G.GAME.probabilities.normal / card.ability.extra.odds then
+            if SMODS.pseudorandom_probability(card, 'bent_coin', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                 ease_dollars(G.GAME.dollars)
             else
                 ease_dollars(-(G.GAME.dollars / 2))
@@ -1662,22 +1787,24 @@ SMODS.Enhancement {
     loc_txt = {
         name = 'Platinum Card',
         text = {
-            "{C:green,E:1,S:1.1}#2# in 6{} chance to",
+            "{C:green,E:1,S:1.1}#2# in #3#{} chance to",
             "{C:attention}Retrigger{}",
-            "{C:green,E:1,S:1.1}#2# in 18{} chance",
+            "{C:green,E:1,S:1.1}#2# in #4#{} chance",
             "for {C:green}+#1#{} Probability",
         }
     },
     pos = {x = 0, y = 0}, 
     atlas = 'Enhancers', 
-    config = { extra = { prob = 0.1} },
+    config = { extra = { prob = 0.1, odds = 6, odds2 = 18} },
     discovered = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {self.config.extra.prob, '' .. (G.GAME and G.GAME.probabilities.normal or 1)} }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds)
+        local numerator2, denominator2 = SMODS.get_probability_vars(card, 1, card.ability.extra.odd2)
+        return { vars = {self.config.extra.prob, numerator, denominator, denominator2} }
     end,
     calculate = function(self, card, context)
         if context.cardarea == G.play and context.repetition then
-            if pseudorandom('platinum_rep') < G.GAME.probabilities.normal/6 then
+            if SMODS.pseudorandom_probability(card, 'platinum_rep', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
                 return {
                     message = localize('k_again_ex'),
                     repetitions = 1,
@@ -1686,14 +1813,17 @@ SMODS.Enhancement {
             end
         end
         if context.main_scoring and context.cardarea == G.play then
-            if pseudorandom('platinum_prob') < G.GAME.probabilities.normal/18 then
-                for k, v in pairs(G.GAME.probabilities) do 
-                    G.GAME.probabilities[k] = v+card.ability.extra.prob
-                end
+            if SMODS.pseudorandom_probability(card, 'platinum_prob', G.GAME.probabilities.normal or 1, card.ability.extra.odds2) then
                 return {
                     message = localize{type='variable',key='sj_prob',vars={card.ability.extra.prob}},
                 }
             end
+        end
+        if context.mod_probability and context.trigger_obj then
+            return {
+                numerator = context.numerator + card.ability.extra.prob,
+                denominator = context.denominator
+            }
         end
     end
 }
